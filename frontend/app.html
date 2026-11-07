@@ -578,9 +578,25 @@ body {
   margin-bottom: 14px;
 }
 .form-input:focus { border-color: var(--green); }
+
+/* Minimal Cursor Glow Spotlight */
+.cursor-glow {
+  position: fixed;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.09) 0%, rgba(16, 185, 129, 0.04) 40%, transparent 70%);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.3s ease;
+  z-index: 2;
+  filter: blur(40px);
+  opacity: 0;
+}
 </style>
 </head>
 <body>
+<div class="cursor-glow" id="cursor-glow"></div>
 
 <!-- GEMINI SIDEBAR -->
 <aside class="sidebar">
@@ -1078,6 +1094,19 @@ async function openReflectReport() {
 
 function escapeHtml(s) {
   return (s || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+// Minimal Cursor Glow Tracker
+const cursorGlow = document.getElementById('cursor-glow');
+if (cursorGlow) {
+  window.addEventListener('mousemove', (e) => {
+    cursorGlow.style.opacity = '1';
+    cursorGlow.style.left = e.clientX + 'px';
+    cursorGlow.style.top = e.clientY + 'px';
+  }, { passive: true });
+  document.addEventListener('mouseleave', () => {
+    cursorGlow.style.opacity = '0';
+  });
 }
 
 window.onload = init;
