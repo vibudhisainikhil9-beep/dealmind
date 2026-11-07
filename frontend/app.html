@@ -579,19 +579,22 @@ body {
 }
 .form-input:focus { border-color: var(--green); }
 
-/* Minimal Cursor Glow Spotlight */
+/* Visible Ambient Cursor Glow Spotlight */
 .cursor-glow {
   position: fixed;
-  width: 320px;
-  height: 320px;
+  top: 0;
+  left: 0;
+  width: 380px;
+  height: 380px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(34, 211, 238, 0.09) 0%, rgba(16, 185, 129, 0.04) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.30) 0%, rgba(16, 185, 129, 0.18) 40%, transparent 70%);
   pointer-events: none;
   transform: translate(-50%, -50%);
-  transition: opacity 0.3s ease;
-  z-index: 2;
-  filter: blur(40px);
+  z-index: 99999;
+  filter: blur(28px);
+  mix-blend-mode: screen;
   opacity: 0;
+  transition: opacity 0.25s ease;
 }
 </style>
 </head>
@@ -1096,13 +1099,12 @@ function escapeHtml(s) {
   return (s || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-// Minimal Cursor Glow Tracker
+// Visible Ambient Cursor Glow Tracker
 const cursorGlow = document.getElementById('cursor-glow');
 if (cursorGlow) {
   window.addEventListener('mousemove', (e) => {
     cursorGlow.style.opacity = '1';
-    cursorGlow.style.left = e.clientX + 'px';
-    cursorGlow.style.top = e.clientY + 'px';
+    cursorGlow.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
   }, { passive: true });
   document.addEventListener('mouseleave', () => {
     cursorGlow.style.opacity = '0';

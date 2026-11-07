@@ -244,19 +244,22 @@ footer{border-top:1px solid var(--card-border);padding:72px 0 32px;background:va
 }
 @media(max-width:600px){.steps{grid-template-columns:1fr}.foot-grid{grid-template-columns:1fr}}
 
-/* Minimal Cursor Glow Spotlight */
+/* Visible Ambient Cursor Glow Spotlight */
 .cursor-glow {
   position: fixed;
-  width: 320px;
-  height: 320px;
+  top: 0;
+  left: 0;
+  width: 380px;
+  height: 380px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(34, 211, 238, 0.08) 0%, rgba(16, 185, 129, 0.04) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.30) 0%, rgba(16, 185, 129, 0.18) 40%, transparent 70%);
   pointer-events: none;
   transform: translate(-50%, -50%);
-  transition: opacity 0.3s ease;
-  z-index: 999;
-  filter: blur(40px);
+  z-index: 99999;
+  filter: blur(28px);
+  mix-blend-mode: screen;
   opacity: 0;
+  transition: opacity 0.25s ease;
 }
 </style>
 </head>
@@ -803,13 +806,12 @@ footer{border-top:1px solid var(--card-border);padding:72px 0 32px;background:va
   document.getElementById('tab-memory').style.flexDirection='column';
   document.getElementById('tab-reflection').style.flexDirection='column';
 
-  // Minimal Cursor Glow Spotlight
+  // Visible Ambient Cursor Glow Spotlight
   const cursorGlow = document.getElementById('cursor-glow');
   if (cursorGlow) {
     window.addEventListener('mousemove', (e) => {
       cursorGlow.style.opacity = '1';
-      cursorGlow.style.left = e.clientX + 'px';
-      cursorGlow.style.top = e.clientY + 'px';
+      cursorGlow.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
     }, { passive: true });
     document.addEventListener('mouseleave', () => {
       cursorGlow.style.opacity = '0';
