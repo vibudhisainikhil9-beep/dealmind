@@ -384,6 +384,14 @@ def serve_index():
         return FileResponse(index_file)
     return {"status": "running", "message": "DealMind API active"}
 
+@app.get("/app")
+def serve_app():
+    app_file = os.path.join(frontend_dir, "app.html")
+    if os.path.exists(app_file):
+        return FileResponse(app_file)
+    index_file = os.path.join(frontend_dir, "index.html")
+    return FileResponse(index_file)
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

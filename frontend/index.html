@@ -256,12 +256,12 @@ footer{border-top:1px solid var(--card-border);padding:72px 0 32px;background:va
       </a>
       <nav class="nav-links">
         <a href="#how">How It Works</a>
-        <a href="#demo">Live Demo</a>
-        <a href="#why">Why Memory</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#why">Enterprise Value</a>
         <a href="#pricing">Pricing</a>
       </nav>
       <div class="nav-actions">
-        <a href="#demo" class="btn btn-primary">Try Live Demo</a>
+        <a href="/app" class="btn btn-primary"><i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.75rem"></i> Launch Console</a>
       </div>
     </div>
   </div>
@@ -279,7 +279,7 @@ footer{border-top:1px solid var(--card-border);padding:72px 0 32px;background:va
       <h1 class="reveal" style="--d:.1s">Your AI sales agent that <span class="grad-green-text">never forgets.</span></h1>
       <p class="lead reveal" style="--d:.2s">DealMind gives enterprise sales teams an AI copilot that remembers every stakeholder, objection, and constraint across months of deal cycles — and uses that memory to close faster.</p>
       <div class="hero-cta reveal" style="--d:.3s">
-        <a href="#demo" class="btn btn-primary">See it live →</a>
+        <a href="/app" class="btn btn-primary">See it live →</a>
         <a href="#how" class="btn btn-ghost">How it works</a>
       </div>
       <div class="hero-stats reveal" style="--d:.4s">
@@ -359,7 +359,107 @@ footer{border-top:1px solid var(--card-border);padding:72px 0 32px;background:va
   </div>
 </section>
 
-<!-- LIVE APP DEMO -->
+<!-- ARCHITECTURAL DIFFERENTIATION (Why Standard Chatbots Fail in Enterprise B2B) -->
+<section id="architecture" style="background:var(--bg);padding:90px 0;border-top:1px solid var(--card-border);border-bottom:1px solid var(--card-border)">
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="eyebrow">Enterprise Cognition Engine</div>
+      <h2>Why B2B Deal Execution Breaks on <span class="grad-green-text">Standard Chatbots.</span></h2>
+      <p style="max-width:760px;margin-inline:auto;font-size:1.05rem;color:var(--muted)">Standard commercial LLM interfaces (ChatGPT, Copilot) are stateless by design. Enterprise deal execution requires persistent episodic continuity across multi-stakeholder negotiation horizons.</p>
+    </div>
+
+    <!-- 3 Core Architectural Pillars -->
+    <div class="grid-3 reveal" style="margin-top:40px;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px">
+      <article class="card" style="padding:28px">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(239,68,68,0.15);display:flex;align-items:center;justify-content:center;color:#ef4444;font-size:1.1rem;margin-bottom:16px"><i class="fa-solid fa-hourglass-end"></i></div>
+        <h3 style="font-size:1.15rem;margin-bottom:10px">The Context Amnesia Barrier</h3>
+        <p style="font-size:.88rem;color:var(--muted);line-height:1.6">Generic conversational bots operate within an ephemeral token window. Once a session terminates, historical objections, budget caps discussed 4 weeks prior, and vendor disqualifiers vanish completely. DealMind retains every interaction into persistent episodic memory units via Vectorize Hindsight.</p>
+      </article>
+
+      <article class="card" style="padding:28px">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(99,102,241,0.15);display:flex;align-items:center;justify-content:center;color:#818cf8;font-size:1.1rem;margin-bottom:16px"><i class="fa-solid fa-diagram-project"></i></div>
+        <h3 style="font-size:1.15rem;margin-bottom:10px">Multi-Stakeholder Disambiguation</h3>
+        <p style="font-size:.88rem;color:var(--muted);line-height:1.6">Enterprise sales involve conflicting signals: the CTO demands on-premises VPC isolation, while the CFO enforces a strict $45,000 budget cap. Naive vector search flattens these into unweighted text snippets. DealMind models stakeholder influence graphs, ensuring proposals satisfy competing constraints simultaneously.</p>
+      </article>
+
+      <article class="card" style="padding:28px">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(16,185,129,0.15);display:flex;align-items:center;justify-content:center;color:#10b981;font-size:1.1rem;margin-bottom:16px"><i class="fa-solid fa-brain"></i></div>
+        <h3 style="font-size:1.15rem;margin-bottom:10px">Autonomous Inductive Reflection</h3>
+        <p style="font-size:.88rem;color:var(--muted);line-height:1.6">Standard chatbots are purely auto-regressive and reactive: they only answer what they are prompted. Powered by Hindsight's <code>reflect()</code> cognitive primitive, DealMind runs cross-deal pattern recognition across the entire pipeline, diagnosing why specific pitches win and projecting risk vectors before customer churn occurs.</p>
+      </article>
+    </div>
+
+    <!-- Technical Comparison Matrix -->
+    <div class="reveal" style="margin-top:50px;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)">
+      <div style="padding:24px 28px;border-bottom:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <div>
+          <h3 style="font-size:1.1rem;font-weight:700">Enterprise Cognitive Matrix: Architectural Comparison</h3>
+          <p style="font-size:0.8rem;color:var(--muted);margin-top:4px">Evaluated against enterprise RFP compliance, SLA thresholds, and sales execution velocity.</p>
+        </div>
+        <a href="/app" class="btn btn-primary" style="font-size:.82rem;padding:8px 16px">Open Live Console →</a>
+      </div>
+
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;text-align:left;font-size:0.86rem">
+          <thead>
+            <tr style="background:rgba(255,255,255,0.02);border-bottom:1px solid var(--card-border);font-family:var(--font-mono);font-size:0.75rem;text-transform:uppercase;color:var(--muted)">
+              <th style="padding:16px 24px">Cognitive Capability</th>
+              <th style="padding:16px 20px">Standard Chatbot (ChatGPT / Copilot)</th>
+              <th style="padding:16px 20px">Naive Vector RAG (Pinecone / Chroma)</th>
+              <th style="padding:16px 24px;background:rgba(16,185,129,0.08);color:var(--green)">DealMind (Vectorize Hindsight)</th>
+            </tr>
+          </thead>
+          <tbody style="divide-y divide-white/5">
+            <tr style="border-bottom:1px solid var(--card-border)">
+              <td style="padding:16px 24px;font-weight:600">Memory Horizon</td>
+              <td style="padding:16px 20px;color:var(--muted)">❌ Ephemeral (Wiped upon session reset)</td>
+              <td style="padding:16px 20px;color:var(--muted)">⚠️ Static document chunks only</td>
+              <td style="padding:16px 24px;background:rgba(16,185,129,0.04);font-weight:600;color:#34d399">✅ Continuous multi-quarter episodic memory</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--card-border)">
+              <td style="padding:16px 24px;font-weight:600">Temporal Decay & Recency</td>
+              <td style="padding:16px 20px;color:var(--muted)">❌ No temporal model</td>
+              <td style="padding:16px 20px;color:var(--muted)">⚠️ Top-k similarity ignores chronology</td>
+              <td style="padding:16px 24px;background:rgba(16,185,129,0.04);font-weight:600;color:#34d399">✅ Chronological weighting + recency decay</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--card-border)">
+              <td style="padding:16px 24px;font-weight:600">Stakeholder Constraint Attribution</td>
+              <td style="padding:16px 20px;color:var(--muted)">❌ Confounds multi-user quotes</td>
+              <td style="padding:16px 20px;color:var(--muted)">⚠️ Unstructured string matching</td>
+              <td style="padding:16px 24px;background:rgba(16,185,129,0.04);font-weight:600;color:#34d399">✅ Graph-attributed stakeholder constraints</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--card-border)">
+              <td style="padding:16px 24px;font-weight:600">Cross-Deal Inductive Reflection</td>
+              <td style="padding:16px 20px;color:var(--muted)">❌ 0% (Purely reactive token generation)</td>
+              <td style="padding:16px 20px;color:var(--muted)">❌ None (Read-only retrieval index)</td>
+              <td style="padding:16px 24px;background:rgba(16,185,129,0.04);font-weight:600;color:#34d399">✅ Autonomous synthesis across deal history</td>
+            </tr>
+            <tr>
+              <td style="padding:16px 24px;font-weight:600">Verifiable Audit Provenance</td>
+              <td style="padding:16px 20px;color:var(--muted)">❌ Hallucination risks without citation</td>
+              <td style="padding:16px 20px;color:var(--muted)">⚠️ Opaque cosine similarity scores</td>
+              <td style="padding:16px 24px;background:rgba(16,185,129,0.04);font-weight:600;color:#34d399">✅ Deterministic <code>[mem-id]</code> citation provenance</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Dedicated Full Screen Callout Card -->
+    <div class="reveal" style="margin-top:40px;background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(34,211,238,0.05));border:1px solid rgba(16,185,129,0.3);border-radius:var(--radius);padding:36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px">
+      <div>
+        <span class="badge" style="margin-bottom:12px;background:rgba(16,185,129,0.2);color:var(--green)">Ready for Production</span>
+        <h3 style="font-size:1.4rem;font-weight:800;color:#fff">Experience the Dedicated DealMind Console</h3>
+        <p style="font-size:0.92rem;color:var(--muted);max-width:600px;margin-top:6px">Test live multi-turn negotiation, inspect recalled memory citations, or retain new customer constraints in real time.</p>
+      </div>
+      <a href="/app" class="btn btn-primary" style="padding:14px 28px;font-size:1rem">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Launch Full Console →
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE APP PREVIEW -->
 <section id="demo">
   <div class="container">
     <div class="section-head center reveal">
@@ -487,7 +587,7 @@ footer{border-top:1px solid var(--card-border);padding:72px 0 32px;background:va
         <a href="#top" class="logo"><span class="logo-mark"><i class="fa-solid fa-brain" style="font-size:.75rem"></i></span>DealMind</a>
         <p>Enterprise deal intelligence powered by Vectorize Hindsight long-term agent memory.</p>
       </div>
-      <div><h4>Product</h4><ul><li><a href="#demo">Live Demo</a></li><li><a href="#how">How It Works</a></li><li><a href="https://github.com/vectorize-io/hindsight" target="_blank">Hindsight GitHub</a></li><li><a href="https://hindsight.vectorize.io" target="_blank">Documentation</a></li></ul></div>
+      <div><h4>Product</h4><ul><li><a href="/app">Live Console</a></li><li><a href="#architecture">Architecture</a></li><li><a href="#how">How It Works</a></li><li><a href="https://github.com/vectorize-io/hindsight" target="_blank">Hindsight GitHub</a></li><li><a href="https://hindsight.vectorize.io" target="_blank">Documentation</a></li></ul></div>
       <div><h4>Use Cases</h4><ul><li>Enterprise Sales</li><li>Healthcare CRM</li><li>Logistics Deals</li><li>SaaS Revenue</li></ul></div>
       <div><h4>Built With</h4><ul><li><a href="https://hindsight.vectorize.io" target="_blank">Vectorize Hindsight</a></li><li><a href="https://vectorize.io/what-is-agent-memory" target="_blank">Agent Memory</a></li><li>FastAPI · Python</li><li>Groq LLM</li></ul></div>
     </div>
