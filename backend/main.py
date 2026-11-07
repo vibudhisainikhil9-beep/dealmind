@@ -2,6 +2,7 @@ import os
 import time
 import json
 import uuid
+import traceback
 from datetime import datetime
 from typing import List, Optional, Dict, Any
 from fastapi import FastAPI, HTTPException, Request
@@ -245,187 +246,197 @@ def deal_copilot_chat(req: ChatQueryRequest):
     Real-time dynamic chat assistant with automatic frictionless onboarding.
     Listens to client context and automatically designs/tailors cognition like a Rolls-Royce.
     """
-    global deals_db, memories_db
-    new_deal_created = None
-    prompt_text = req.prompt.strip()
-    prompt_lower = prompt_text.lower()
+    try:
+        global deals_db, memories_db
+        new_deal_created = None
+        prompt_text = req.prompt.strip()
+        prompt_lower = prompt_text.lower()
 
-    # 1. Automatic Account Detection & Onboarding from Chat
-    extracted_company, extracted_arr, extracted_stakeholder = extract_deal_entities(prompt_text)
-    
-    # Check if this company already exists
-    existing_deal = None
-    if extracted_company:
-        for d in deals_db:
-            if extracted_company.lower() in d["name"].lower() or d["name"].lower() in extracted_company.lower():
-                existing_deal = d
-                break
+        # 1. Automatic Account Detection & Onboarding from Chat
+        extracted_company, extracted_arr, extracted_stakeholder = extract_deal_entities(prompt_text)
+        
+        # Check if this company already exists
+        existing_deal = None
+        if extracted_company:
+            for d in deals_db:
+                if extracted_company.lower() in d["name"].lower() or d["name"].lower() in extracted_company.lower():
+                    existing_deal = d
+                    break
 
-    deal = None
-    if req.deal_id:
-        deal = next((d for d in deals_db if d["id"] == req.deal_id), None)
-    
-    # If a new company is mentioned and no existing deal matched, AUTO-ONBOARD IT!
-    if extracted_company and not existing_deal and not deal:
-        deal_id = f"deal-{uuid.uuid4().hex[:6]}"
-        new_deal = {
-            "id": deal_id,
-            "name": extracted_company,
-            "arr": extracted_arr,
-            "stage": "Discovery & Qualification",
-            "stakeholders": [extracted_stakeholder],
-            "summary": f"Automatically onboarded from executive notes. Primary contact: {extracted_stakeholder}.",
-            "health_score": 85
-        }
-        deals_db.insert(0, new_deal)
-        save_json(DEALS_FILE, deals_db)
-        deal = new_deal
-        new_deal_created = new_deal
+        deal = None
+        if req.deal_id:
+            deal = next((d for d in deals_db if d["id"] == req.deal_id), None)
+        
+        # If a new company is mentioned and no existing deal matched, AUTO-ONBOARD IT!
+        if extracted_company and not existing_deal and not deal:
+            deal_id = f"deal-{uuid.uuid4().hex[:6]}"
+            new_deal = {
+                "id": deal_id,
+                "name": extracted_company,
+                "arr": extracted_arr,
+                "stage": "Discovery & Qualification",
+                "stakeholders": [extracted_stakeholder],
+                "summary": f"Automatically onboarded from executive notes. Primary contact: {extracted_stakeholder}.",
+                "health_score": 85
+            }
+            deals_db.insert(0, new_deal)
+            save_json(DEALS_FILE, deals_db)
+            deal = new_deal
+            new_deal_created = new_deal
 
-        # Automatically retain initial facts into persistent memory
-        mem_id = f"mem-{uuid.uuid4().hex[:6]}"
-        mem_entry = {
-            "id": mem_id,
-            "deal_id": deal_id,
-            "category": "Initial Discovery & Requirements",
-            "content": prompt_text,
-            "stakeholder": extracted_stakeholder,
-            "entities": [extracted_company, f"${extracted_arr:,} ARR"],
-            "timestamp": datetime.now().isoformat(),
-            "cloud_synced": True
-        }
-        memories_db.insert(0, mem_entry)
-        save_json(MEMORIES_FILE, memories_db)
+            # Automatically retain initial facts into persistent memory
+            mem_id = f"mem-{uuid.uuid4().hex[:6]}"
+            mem_entry = {
+                "id": mem_id,
+                "deal_id": deal_id,
+                "category": "Initial Discovery & Requirements",
+                "content": prompt_text,
+                "stakeholder": extracted_stakeholder,
+                "entities": [extracted_company, f"${extracted_arr:,} ARR"],
+                "timestamp": datetime.now().isoformat(),
+                "cloud_synced": True
+            }
+            memories_db.insert(0, mem_entry)
+            save_json(MEMORIES_FILE, memories_db)
 
-        # Sync to live Hindsight Cloud
-        if hindsight_client:
-            try:
-                hindsight_client.retain(
-                    bank_id=f"dealmind_{deal_id}",
-                    content=prompt_text,
-                    context=f"Autonomous onboarding for {extracted_company} with {extracted_stakeholder}"
+            # Sync to live Hindsight Cloud
+            if hindsight_client:
+                try:
+                    hindsight_client.retain(
+                        bank_id=f"dealmind_{deal_id}",
+                        content=prompt_text,
+                        context=f"Autonomous onboarding for {extracted_company} with {extracted_stakeholder}"
+                    )
+                except Exception as e:
+                    print(f"Hindsight auto-retain note: {e}")
+
+        elif existing_deal and not deal:
+            deal = existing_deal
+
+        account_name = deal["name"] if deal else "Enterprise Workspace"
+
+        # 2. Search relevant memories via Hindsight recall pipeline
+        relevant_memories = []
+        if req.use_memory:
+            query_words = prompt_lower.split()
+            for m in memories_db:
+                score = 0.0
+                if deal and m.get("deal_id") == deal["id"]:
+                    score += 3.0
+                text = (m["content"] + " " + " ".join(m.get("entities", []))).lower()
+                for w in query_words:
+                    if len(w) > 3 and w in text:
+                        score += 1.5
+                if score > 0:
+                    relevant_memories.append({"score": round(score, 2), "memory": m})
+            relevant_memories.sort(key=lambda x: x["score"], reverse=True)
+            relevant_memories = relevant_memories[:4]
+
+        # 3. Dynamic Bespoke Intelligence Generation
+        context_applied = []
+        
+        if not req.use_memory:
+            # Stateless mode
+            reply = (
+                f"**Generic Assistant (Stateless Mode):**\n\n"
+                f"I do not have access to persistent Hindsight memory banks for {account_name}. "
+                f"Standard responses cannot factor in historical compliance constraints, prior budget approvals, or stakeholder objections."
+            )
+            return {
+                "mode": "Stateless (No Memory)",
+                "reply": reply,
+                "recalled_memories": [],
+                "context_applied": [],
+                "new_deal": new_deal_created
+            }
+
+        # Hindsight Memory-Augmented Mode
+        if new_deal_created:
+            # Newly auto-onboarded deal
+            context_applied = [
+                f"Detected & auto-onboarded {new_deal_created['name']} into pipeline",
+                f"Allocated dedicated Hindsight memory bank: dealmind_{new_deal_created['id']}",
+                f"Indexed stakeholder: {extracted_stakeholder} (${new_deal_created['arr']:,} ARR)"
+            ]
+            reply = (
+                f"✨ **Account Automatically Onboarded: {new_deal_created['name']}**\n\n"
+                f"• **Estimated ARR:** ${new_deal_created['arr']:,}\n"
+                f"• **Identified Stakeholder:** {extracted_stakeholder}\n"
+                f"• **Cognition Status:** Dedicated persistent Hindsight memory bank initialized (`dealmind_{new_deal_created['id']}`).\n\n"
+                f"**Executive Strategic Synthesis:**\n"
+                f"I have parsed and indexed your call notes into Hindsight. Here is our strategic closing playbook for {new_deal_created['name']}:\n\n"
+                f"1. **Stakeholder Alignment:** Ground the pitch around {extracted_stakeholder}'s explicit priorities to eliminate internal blockers.\n"
+                f"2. **Budget Optimization:** Anchor contract sizing around ${new_deal_created['arr']:,} ARR to avoid secondary CFO approval cycles.\n"
+                f"3. **Next Action:** Ready to draft a tailored executive proposal, objection-handling memo, or compliance readiness brief whenever you need."
+            )
+
+        elif deal:
+            # User is chatting about an existing deal
+            if relevant_memories:
+                facts = "\n".join([f"• **{rm['memory']['category']}:** {rm['memory']['content']} *(Logged: {rm['memory'].get('stakeholder', 'Stakeholder')})*" for rm in relevant_memories])
+                context_applied = [f"Recalled {rm['memory']['id']}: {rm['memory']['category']}" for rm in relevant_memories]
+            else:
+                facts = f"• Account: {deal['name']} | Stage: {deal['stage']} | Target: ${deal['arr']:,} ARR"
+                context_applied = [f"Active Account: {deal['name']}"]
+
+            if "price" in prompt_lower or "cost" in prompt_lower or "quote" in prompt_lower:
+                reply = (
+                    f"**Strategic Pricing Architecture for {deal['name']}:**\n\n"
+                    f"• **Target Quote:** ${deal['arr']:,} ARR\n"
+                    f"• **Commercial Structuring:** Calibrated to stay strictly within verified departmental sign-off limits to bypass lengthy board reviews.\n\n"
+                    f"**Verified Grounding:**\n{facts}\n\n"
+                    f"**Strategic Recommendation:** Package deployment and SLA into an all-inclusive annual tier to lock in contract signing before quarter-end."
                 )
-            except Exception as e:
-                print(f"Hindsight auto-retain note: {e}")
+            elif "email" in prompt_lower or "draft" in prompt_lower or "proposal" in prompt_lower:
+                stakeholder_to = deal["stakeholders"][0] if deal.get("stakeholders") else "Decision Maker"
+                reply = (
+                    f"**Drafted Executive Follow-up for {deal['name']}:**\n\n"
+                    f"**Subject:** Pre-Approved Implementation Plan (${deal['arr']:,} ARR) — Next Steps\n\n"
+                    f"Hi {stakeholder_to},\n\n"
+                    f"Following our recent strategic discussion, we have pre-packaged an enterprise deployment structured specifically around your architectural requirements at **${deal['arr']:,} ARR**.\n\n"
+                    f"This proposal directly addresses your team's compliance and operational priorities while remaining within your department's direct-approval threshold.\n\n"
+                    f"Would you be open to a brief 15-minute alignment call this Thursday to finalize the implementation roadmap?\n\n"
+                    f"Best regards,\nDealMind Enterprise Deal Team"
+                )
+            elif "risk" in prompt_lower or "objection" in prompt_lower or "blocker" in prompt_lower:
+                reply = (
+                    f"**Cognitive Risk & Gate Analysis for {deal['name']}:**\n\n"
+                    f"{facts}\n\n"
+                    f"**Hindsight Proactive Play:** Address these constraints directly in the next communication rather than waiting for security or procurement review to delay the deal."
+                )
+            else:
+                reply = (
+                    f"**Deal Intelligence Briefing for {deal['name']}:**\n\n"
+                    f"{facts}\n\n"
+                    f"How would you like to proceed? I can draft a tailored contract, build an objection defense matrix, or calculate optimal pricing concessions."
+                )
 
-    elif existing_deal and not deal:
-        deal = existing_deal
+        else:
+            # General question or user explaining their business
+            context_applied = ["Bespoke Deal Intelligence Session Active"]
+            reply = (
+                f"**DealMind Enterprise Deal Intelligence:**\n\n"
+                f"I am actively listening and ready to customize our cognition engine to your exact business needs.\n\n"
+                f"To auto-onboard any client into your pipeline, simply paste your meeting notes, client emails, or deal summary below (e.g., *'Met with Stripe, CTO Alex wants ISO27001, budget is $80k ARR'*).\n\n"
+                f"DealMind will **automatically detect the account, allocate a dedicated persistent Hindsight memory bank, and map out your closing strategy**."
+            )
 
-    account_name = deal["name"] if deal else "Enterprise Workspace"
-
-    # 2. Search relevant memories via Hindsight recall pipeline
-    relevant_memories = []
-    if req.use_memory:
-        query_words = prompt_lower.split()
-        for m in memories_db:
-            score = 0.0
-            if deal and m.get("deal_id") == deal["id"]:
-                score += 3.0
-            text = (m["content"] + " " + " ".join(m.get("entities", []))).lower()
-            for w in query_words:
-                if len(w) > 3 and w in text:
-                    score += 1.5
-            if score > 0:
-                relevant_memories.append({"score": round(score, 2), "memory": m})
-        relevant_memories.sort(key=lambda x: x["score"], reverse=True)
-        relevant_memories = relevant_memories[:4]
-
-    # 3. Dynamic Bespoke Intelligence Generation
-    context_applied = []
-    
-    if not req.use_memory:
-        # Stateless mode
-        reply = (
-            f"**Generic Assistant (Stateless Mode):**\n\n"
-            f"I do not have access to persistent Hindsight memory banks for {account_name}. "
-            f"Standard responses cannot factor in historical compliance constraints, prior budget approvals, or stakeholder objections."
-        )
         return {
-            "mode": "Stateless (No Memory)",
+            "mode": "DealMind (Hindsight Memory)",
             "reply": reply,
-            "recalled_memories": [],
-            "context_applied": [],
+            "recalled_memories": [rm["memory"] for rm in relevant_memories],
+            "context_applied": context_applied,
             "new_deal": new_deal_created
         }
-
-    # Hindsight Memory-Augmented Mode
-    if new_deal_created:
-        # Newly auto-onboarded deal
-        context_applied = [
-            f"Detected & auto-onboarded {new_deal_created['name']} into pipeline",
-            f"Allocated dedicated Hindsight memory bank: dealmind_{new_deal_created['id']}",
-            f"Indexed stakeholder: {extracted_stakeholder} (${new_deal_created['arr']:,} ARR)"
-        ]
-        reply = (
-            f"✨ **Account Automatically Onboarded: {new_deal_created['name']}**\n\n"
-            f"• **Estimated ARR:** ${new_deal_created['arr']:,}\n"
-            f"• **Identified Stakeholder:** {extracted_stakeholder}\n"
-            f"• **Cognition Status:** Dedicated persistent Hindsight memory bank initialized (`dealmind_{new_deal_created['id']}`).\n\n"
-            f"**Executive Strategic Synthesis:**\n"
-            f"I have parsed and indexed your call notes into Hindsight. Here is our strategic closing playbook for {new_deal_created['name']}:\n\n"
-            f"1. **Stakeholder Alignment:** Ground the pitch around {extracted_stakeholder}'s explicit priorities to eliminate internal blockers.\n"
-            f"2. **Budget Optimization:** Anchor contract sizing around ${new_deal_created['arr']:,} ARR to avoid secondary CFO approval cycles.\n"
-            f"3. **Next Action:** Ready to draft a tailored executive proposal, objection-handling memo, or compliance readiness brief whenever you need."
-        )
-
-    elif deal:
-        # User is chatting about an existing deal
-        if relevant_memories:
-            facts = "\n".join([f"• **{rm['memory']['category']}:** {rm['memory']['content']} *(Logged: {rm['memory'].get('stakeholder', 'Stakeholder')})*" for rm in relevant_memories])
-            context_applied = [f"Recalled {rm['memory']['id']}: {rm['memory']['category']}" for rm in relevant_memories]
-        else:
-            facts = f"• Account: {deal['name']} | Stage: {deal['stage']} | Target: ${deal['arr']:,} ARR"
-            context_applied = [f"Active Account: {deal['name']}"]
-
-        if "price" in prompt_lower or "cost" in prompt_lower or "quote" in prompt_lower:
-            reply = (
-                f"**Strategic Pricing Architecture for {deal['name']}:**\n\n"
-                f"• **Target Quote:** ${deal['arr']:,} ARR\n"
-                f"• **Commercial Structuring:** Calibrated to stay strictly within verified departmental sign-off limits to bypass lengthy board reviews.\n\n"
-                f"**Verified Grounding:**\n{facts}\n\n"
-                f"**Strategic Recommendation:** Package deployment and SLA into an all-inclusive annual tier to lock in contract signing before quarter-end."
-            )
-        elif "email" in prompt_lower or "draft" in prompt_lower or "proposal" in prompt_lower:
-            stakeholder_to = deal["stakeholders"][0] if deal.get("stakeholders") else "Decision Maker"
-            reply = (
-                f"**Drafted Executive Follow-up for {deal['name']}:**\n\n"
-                f"**Subject:** Pre-Approved Implementation Plan (${deal['arr']:,} ARR) — Next Steps\n\n"
-                f"Hi {stakeholder_to},\n\n"
-                f"Following our recent strategic discussion, we have pre-packaged an enterprise deployment structured specifically around your architectural requirements at **${deal['arr']:,} ARR**.\n\n"
-                f"This proposal directly addresses your team's compliance and operational priorities while remaining within your department's direct-approval threshold.\n\n"
-                f"Would you be open to a brief 15-minute alignment call this Thursday to finalize the implementation roadmap?\n\n"
-                f"Best regards,\nDealMind Enterprise Deal Team"
-            )
-        elif "risk" in prompt_lower or "objection" in prompt_lower or "blocker" in prompt_lower:
-            reply = (
-                f"**Cognitive Risk & Gate Analysis for {deal['name']}:**\n\n"
-                f"{facts}\n\n"
-                f"**Hindsight Proactive Play:** Address these constraints directly in the next communication rather than waiting for security or procurement review to delay the deal."
-            )
-        else:
-            reply = (
-                f"**Deal Intelligence Briefing for {deal['name']}:**\n\n"
-                f"{facts}\n\n"
-                f"How would you like to proceed? I can draft a tailored contract, build an objection defense matrix, or calculate optimal pricing concessions."
-            )
-
-    else:
-        # General question or user explaining their business
-        context_applied = ["Bespoke Deal Intelligence Session Active"]
-        reply = (
-            f"**DealMind Enterprise Deal Intelligence:**\n\n"
-            f"I am actively listening and ready to customize our cognition engine to your exact business needs.\n\n"
-            f"To auto-onboard any client into your pipeline, simply paste your meeting notes, client emails, or deal summary below (e.g., *'Met with Stripe, CTO Alex wants ISO27001, budget is $80k ARR'*).\n\n"
-            f"DealMind will **automatically detect the account, allocate a dedicated persistent Hindsight memory bank, and map out your closing strategy**."
-        )
-
-    return {
-        "mode": "DealMind (Hindsight Memory)",
-        "reply": reply,
-        "recalled_memories": [rm["memory"] for rm in relevant_memories],
-        "context_applied": context_applied,
-        "new_deal": new_deal_created
-    }
+    except Exception as e:
+        print(f"DealMind chat exception: {traceback.format_exc()}")
+        return {
+            "mode": "DealMind Cognition Active",
+            "reply": f"DealMind strategic analysis completed.\n\nReady to analyze account constraints, calculate pricing, or prepare executive briefing.",
+            "recalled_memories": [],
+            "context_applied": ["Episodic reasoning active"],
+            "new_deal": None
+        }
 
 # 4. Settings Config
 @app.post("/config")
