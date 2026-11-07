@@ -466,6 +466,22 @@ def serve_app():
             return FileResponse(f)
     return serve_index()
 
+# Catch-all debug route for serverless path resolution
+@app.api_route("/{full_path:path}", methods=["GET", "POST", "PUT", "DELETE"])
+def catch_all_debug(full_path: str, request: Request):
+    path = request.url.path.strip("/")
+    # Map common routes if path arrived with variations
+    if path.endswith("deals"):
+        return get_deals()
+    elif path.endswith("memories"):
+        return get_memories()
+    return {
+        "detail": "Path resolution",
+        "full_path": full_path,
+        "request_path": request.url.path,
+        "scope_path": request.scope.get("path")
+    }
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
