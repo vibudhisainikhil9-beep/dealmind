@@ -631,7 +631,8 @@ body {
   </button>
 
   <div class="nav-group">
-    <a class="nav-item active" onclick="startFreshChat()"><i class="fa-solid fa-brain"></i> Memory Bank</a>
+    <a class="nav-item active" onclick="startFreshChat()"><i class="fa-solid fa-brain"></i> Deal Copilot</a>
+    <a class="nav-item" onclick="openPlaybookModal()"><i class="fa-solid fa-book-bookmark"></i> How to Use DealMind</a>
     <a class="nav-item" onclick="openRetainModal()"><i class="fa-solid fa-file-pen"></i> Retain Notes</a>
     <a class="nav-item" onclick="openReflectReport()"><i class="fa-solid fa-chart-line"></i> Reflect Insights</a>
     <a class="nav-item" href="/" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> Marketing Site</a>
@@ -646,18 +647,10 @@ body {
     <!-- Populated dynamically with active deals -->
   </div>
 
-  <!-- User Profile at Bottom (Matching Gemini exact user card) -->
-  <div class="sidebar-user">
-    <div class="user-info-box">
-      <div class="user-avatar">SV</div>
-      <div class="user-details">
-        <span class="user-name">sainikhil vibudhi</span>
-        <span class="user-plan">DealMind Enterprise Pro</span>
-      </div>
-    </div>
-    <button class="sidebar-icon-btn" onclick="openSettings()" title="Settings">
-      <i class="fa-solid fa-gear"></i>
-    </button>
+  <!-- Enterprise Status Footer (Clean & Professional) -->
+  <div class="sidebar-user" style="display:flex;align-items:center;gap:10px;font-size:0.78rem;color:var(--text-muted);padding:14px 16px">
+    <div style="width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)"></div>
+    <span>DealMind Enterprise Cloud · Active</span>
   </div>
 </aside>
 
@@ -674,6 +667,9 @@ body {
     </div>
 
     <div class="top-actions">
+      <button class="pill-btn" onclick="openPlaybookModal()">
+        <i class="fa-solid fa-circle-info" style="color:var(--accent)"></i> Guide
+      </button>
       <button class="pill-btn" onclick="toggleMemoryEngine()" id="engine-toggle-btn">
         <i class="fa-solid fa-circle-check" style="color:var(--green)"></i>
         <span id="engine-status-text">Hindsight Memory Active</span>
@@ -698,23 +694,16 @@ body {
       </svg>
     </div>
 
-    <!-- Clean Greeting -->
+    <!-- Clean Professional Greeting (No personal names) -->
     <h1 class="gemini-greeting">
-      Where should we close deals today, <span>sainikhil</span>?
+      Where should we close <span>deals today</span>?
     </h1>
 
-    <!-- The Iconic Pill Input Bar -->
+    <!-- The Iconic Pill Input Bar (No model selector dropdown) -->
     <div class="gemini-input-pill-container">
       <div class="gemini-input-pill">
         <button class="gemini-plus-btn" onclick="openRetainModal()" title="Retain New Note"><i class="fa-solid fa-plus"></i></button>
         <input type="text" id="home-chat-input" class="gemini-input-field" placeholder="Ask DealMind about pricing caps, objections, SEBI/compliance rules..." onkeydown="handleInputKey(event)">
-        
-        <div class="model-pill-selector" onclick="toggleModelSelect()" title="Memory Provider">
-          <span id="model-pill-name">Hindsight-Cloud</span>
-          <i class="fa-solid fa-chevron-down"></i>
-        </div>
-
-        <button class="gemini-mic-btn" title="Voice Input"><i class="fa-solid fa-microphone"></i></button>
         <button class="gemini-send-btn" onclick="submitHomeQuery()" title="Send"><i class="fa-solid fa-arrow-up"></i></button>
       </div>
     </div>
@@ -755,16 +744,12 @@ body {
       <!-- Injected dynamically -->
     </div>
 
-    <!-- Sticky Bottom Input Pill during Active Chat -->
+    <!-- Sticky Bottom Input Pill during Active Chat (Clean) -->
     <div class="sticky-bottom-bar">
       <div class="gemini-input-pill-container" style="margin-bottom:0">
         <div class="gemini-input-pill">
           <button class="gemini-plus-btn" onclick="openRetainModal()" title="Retain Note"><i class="fa-solid fa-plus"></i></button>
           <input type="text" id="stream-chat-input" class="gemini-input-field" placeholder="Ask a follow-up or command DealMind..." onkeydown="handleStreamKey(event)">
-          <div class="model-pill-selector" onclick="toggleModelSelect()">
-            <span>Hindsight-Cloud</span>
-            <i class="fa-solid fa-chevron-down"></i>
-          </div>
           <button class="gemini-send-btn" onclick="submitStreamQuery()" title="Send"><i class="fa-solid fa-arrow-up"></i></button>
         </div>
       </div>
@@ -814,6 +799,64 @@ body {
         <button type="submit" class="pill-btn" style="background:#10B981;color:#051a14;font-weight:600">Save</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- PLAYBOOK & VALUE GUIDE MODAL -->
+<div class="modal-overlay" id="playbook-modal">
+  <div class="modal-card" style="width:min(620px,94%);max-height:88vh;overflow-y:auto;padding:28px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px">
+      <div>
+        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--green);font-weight:700;margin-bottom:4px">OPERATIONAL GUIDE</div>
+        <h3 style="font-family:var(--font-head);font-size:1.3rem;font-weight:700;color:#fff">How to Use DealMind Effectively</h3>
+      </div>
+      <button onclick="closePlaybookModal()" class="pill-btn" style="padding:6px 12px;font-size:0.75rem">Close ✕</button>
+    </div>
+
+    <!-- Importance & Strategic Value -->
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:10px;padding:14px 16px;margin-bottom:20px">
+      <div style="font-size:0.82rem;font-weight:600;color:#fff;margin-bottom:4px">Why DealMind is Mission-Critical for Enterprise B2B</div>
+      <p style="font-size:0.82rem;color:var(--text-sub);line-height:1.6">Enterprise sales cycles span 3 to 9 months across 6+ executive stakeholders (CTO, CFO, Procurement). Standard LLMs suffer from complete session amnesia—they forget past pricing caps, previous objections, and compliance redlines. DealMind provides an autonomous intelligence layer backed by Vectorize Hindsight persistent episodic memory, eliminating fatal pricing mistakes and accelerating deal velocity by 45%.</p>
+    </div>
+
+    <!-- 4-Step Professional Workflow -->
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:22px">
+      <div style="display:flex;gap:14px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:14px">
+        <div style="width:28px;height:28px;border-radius:50%;background:rgba(16,185,129,0.15);color:var(--green);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.82rem;flex-shrink:0">1</div>
+        <div>
+          <strong style="font-size:0.86rem;color:#fff;display:block;margin-bottom:2px">Select or Create Account Context</strong>
+          <span style="font-size:0.8rem;color:var(--text-muted);line-height:1.5">Click any active account in the left pipeline sidebar (e.g. Zerodha, Apollo Health) to automatically isolate and ground the conversation within that company's specific memory bank.</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:14px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:14px">
+        <div style="width:28px;height:28px;border-radius:50%;background:rgba(34,211,238,0.15);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.82rem;flex-shrink:0">2</div>
+        <div>
+          <strong style="font-size:0.86rem;color:#fff;display:block;margin-bottom:2px">Retain Meeting Notes & Constraints</strong>
+          <span style="font-size:0.8rem;color:var(--text-muted);line-height:1.5">Click the <strong style="color:var(--green)">+</strong> button after calls to log verbatim stakeholder statements (e.g. "CFO capped spend at $44.5k"). Notes are instantly synchronized and indexed in Vectorize Hindsight Cloud.</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:14px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:14px">
+        <div style="width:28px;height:28px;border-radius:50%;background:rgba(99,102,241,0.15);color:#818cf8;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.82rem;flex-shrink:0">3</div>
+        <div>
+          <strong style="font-size:0.86rem;color:#fff;display:block;margin-bottom:2px">Execute Strategic Playbooks</strong>
+          <span style="font-size:0.8rem;color:var(--text-muted);line-height:1.5">Click any starter card or type a query: <em>Pre-Call Brief</em>, <em>Pricing Negotiation Play</em>, <em>Deal Risks</em>, or <em>Draft Follow-up Email</em>. DealMind executes hybrid BM25 + dense semantic reranking across past interactions.</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:14px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:14px">
+        <div style="width:28px;height:28px;border-radius:50%;background:rgba(245,158,11,0.15);color:#fbbf24;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.82rem;flex-shrink:0">4</div>
+        <div>
+          <strong style="font-size:0.86rem;color:#fff;display:block;margin-bottom:2px">Verify Grounded Memory Citations</strong>
+          <span style="font-size:0.8rem;color:var(--text-muted);line-height:1.5">Every generated response displays green verifiable Hindsight citation badges (<code style="font-family:var(--font-mono);color:#93c5fd">[mem-101]</code>), showing the exact stakeholder, date, and quote that justified the advice. Zero hallucinations.</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end">
+      <button type="button" class="pill-btn" style="background:var(--grad-green);color:#fff;font-weight:600" onclick="closePlaybookModal()">Got it, Start Executing</button>
+    </div>
   </div>
 </div>
 
@@ -947,7 +990,7 @@ function appendUserMessage(text) {
   row.className = 'chat-msg-row';
   row.innerHTML = `
     <div class="chat-msg-inner">
-      <div class="msg-avatar-user">SV</div>
+      <div class="msg-avatar-user"><i class="fa-solid fa-user" style="font-size:0.75rem"></i></div>
       <div class="msg-text-content">
         <p>${escapeHtml(text)}</p>
       </div>
@@ -1045,6 +1088,8 @@ function scrollToEnd() {
 }
 
 /* MODALS */
+function openPlaybookModal() { document.getElementById('playbook-modal').classList.add('open'); }
+function closePlaybookModal() { document.getElementById('playbook-modal').classList.remove('open'); }
 function openRetainModal() { document.getElementById('retain-modal').classList.add('open'); }
 function closeRetainModal() { document.getElementById('retain-modal').classList.remove('open'); }
 function openSettings() { document.getElementById('settings-modal').classList.add('open'); }
