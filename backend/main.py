@@ -466,33 +466,6 @@ def serve_app():
             return FileResponse(f)
     return serve_index()
 
-# Catch-all route for serverless path resolution
-@app.api_route("/{full_path:path}", methods=["GET", "POST", "PUT", "DELETE"])
-async def catch_all_debug(full_path: str, request: Request):
-    path = request.url.path.strip("/")
-    if path.endswith("deals"):
-        if request.method == "POST":
-            body = await request.json()
-            return create_deal(CreateDealRequest(**body))
-        return get_deals()
-    elif path.endswith("retain"):
-        body = await request.json()
-        return retain_memory_note(RetainNoteRequest(**body))
-    elif path.endswith("memories"):
-        return get_memories()
-    elif path.endswith("chat"):
-        body = await request.json()
-        return deal_copilot_chat(ChatQueryRequest(**body))
-    elif path.endswith("config"):
-        body = await request.json()
-        return update_config(ConfigRequest(**body))
-    return {
-        "status": "online",
-        "full_path": full_path,
-        "request_path": request.url.path,
-        "headers": dict(request.headers)
-    }
-
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
