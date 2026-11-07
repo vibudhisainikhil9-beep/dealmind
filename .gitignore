@@ -16,3 +16,5 @@ ENV/
 # Data & OS
 .DS_Store
 Thumbs.db
+
+.vercel

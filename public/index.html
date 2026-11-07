@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DealMind — Enterprise Deal Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+:root{--font-head:'Manrope',system-ui,sans-serif;--font-body:'Inter',system-ui,sans-serif;--font-mono:'JetBrains Mono',monospace;--radius:20px;--ease:cubic-bezier(.22,1,.36,1);--max:1280px}
+:root[data-theme="dark"]{--bg:#0A0A0F;--bg-2:#101018;--card:rgba(255,255,255,.04);--card-border:rgba(255,255,255,.09);--text:#F5F5F7;--muted:#A1A1B5;--primary:#6366F1;--accent:#22D3EE;--green:#10B981;--grad:linear-gradient(135deg,#6366F1 0%,#22D3EE 100%);--grad-green:linear-gradient(135deg,#10B981 0%,#22D3EE 100%);--shadow:0 20px 60px rgba(0,0,0,.45);--nav-bg:rgba(10,10,15,.65)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;height:100%}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);line-height:1.65;font-size:16px;-webkit-font-smoothing:antialiased;overflow-x:hidden;height:100%}
+a{color:inherit;text-decoration:none}ul{list-style:none}button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+.container{width:min(var(--max),100% - 48px);margin-inline:auto}
+h1,h2,h3,h4{font-family:var(--font-head);letter-spacing:-.02em;line-height:1.1}
+h1{font-size:clamp(2.4rem,6vw,5rem);font-weight:800}
+h2{font-size:clamp(1.8rem,4vw,3rem);font-weight:800}
+h3{font-size:clamp(1.1rem,1.8vw,1.4rem);font-weight:700}
+.grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.grad-green-text{background:var(--grad-green);-webkit-background-clip:text;background-clip:text;color:transparent}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.78rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+.eyebrow::before{content:"";width:20px;height:2px;background:var(--grad-green);border-radius:2px}
+.section-head{max-width:680px;margin-bottom:52px}
+.section-head p{color:var(--muted);margin-top:16px;font-size:1.05rem}
+.center{text-align:center;margin-inline:auto}.center .eyebrow{justify-content:center}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 26px;border-radius:999px;font-weight:600;font-size:.95rem;transition:transform .3s var(--ease),box-shadow .3s;white-space:nowrap}
+.btn-primary{background:var(--grad-green);color:#fff;box-shadow:0 10px 30px -8px rgba(16,185,129,.5)}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 16px 40px -8px rgba(16,185,129,.6)}
+.btn-ghost{border:1px solid var(--card-border);background:var(--card);backdrop-filter:blur(10px)}
+.btn-ghost:hover{transform:translateY(-3px);border-color:var(--accent)}
+/* NAV */
+.nav{position:fixed;inset:0 0 auto 0;z-index:100;padding:14px 0;transition:padding .3s}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:12px 14px 12px 24px;border-radius:999px;background:var(--nav-bg);backdrop-filter:blur(18px) saturate(160%);border:1px solid var(--card-border)}
+.logo{font-family:var(--font-head);font-weight:800;font-size:1.25rem;display:flex;align-items:center;gap:10px}
+.logo-mark{width:30px;height:30px;border-radius:9px;background:var(--grad-green);display:grid;place-items:center;color:#fff;font-size:.85rem}
+.nav-links{display:flex;gap:28px;font-size:.92rem;font-weight:500;color:var(--muted)}
+.nav-links a:hover{color:var(--text)}
+.nav-actions{display:flex;align-items:center;gap:10px}
+/* MESH */
+.mesh{position:absolute;inset:0;z-index:-1;overflow:hidden}
+.mesh span{position:absolute;border-radius:50%;filter:blur(110px);opacity:.45;animation:float 20s ease-in-out infinite}
+.mesh span:nth-child(1){width:520px;height:520px;background:#6366F1;top:-140px;left:-120px}
+.mesh span:nth-child(2){width:440px;height:440px;background:#10B981;top:15%;right:-120px;animation-delay:-7s;opacity:.35}
+.mesh span:nth-child(3){width:380px;height:380px;background:#22D3EE;bottom:-160px;left:40%;animation-delay:-14s;opacity:.28}
+.grid-bg{position:absolute;inset:0;z-index:-1;background-image:linear-gradient(var(--card-border) 1px,transparent 1px),linear-gradient(90deg,var(--card-border) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse at 50% 30%,#000 10%,transparent 72%);opacity:.55}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,35px) scale(1.1)}}
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;padding-top:140px;overflow:hidden;position:relative}
+.hero-content{max-width:860px;margin-inline:auto;text-align:center}
+.badge{display:inline-flex;align-items:center;gap:10px;padding:8px 18px;border-radius:999px;border:1px solid var(--card-border);background:var(--card);backdrop-filter:blur(10px);font-size:.82rem;font-weight:500;margin-bottom:28px}
+.badge i{width:8px;height:8px;border-radius:50%;background:#22C55E;box-shadow:0 0 0 4px rgba(34,197,94,.2);animation:glow 2s infinite}
+@keyframes glow{50%{box-shadow:0 0 0 8px rgba(34,197,94,0)}}
+.hero p.lead{font-size:clamp(1rem,1.8vw,1.22rem);color:var(--muted);max-width:620px;margin:26px auto 36px}
+.hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.hero-stats{display:flex;justify-content:center;gap:clamp(24px,6vw,64px);margin-top:72px;flex-wrap:wrap;padding:32px;border:1px solid var(--card-border);background:var(--card);backdrop-filter:blur(12px);border-radius:var(--radius)}
+.hero-stats div{text-align:center}
+.hero-stats b{display:block;font-family:var(--font-head);font-size:2rem;font-weight:800}
+.hero-stats span{font-size:.82rem;color:var(--muted)}
+/* MARQUEE */
+.logos{padding:48px 0;border-block:1px solid var(--card-border);background:var(--bg-2)}
+.logos p{text-align:center;color:var(--muted);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:24px}
+.marquee{overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 15%,#000 85%,transparent)}
+.track{display:flex;gap:60px;width:max-content;animation:scroll 28s linear infinite}
+.track span{font-family:var(--font-head);font-weight:800;font-size:1.3rem;color:var(--muted);opacity:.6;white-space:nowrap}
+@keyframes scroll{to{transform:translateX(-50%)}}
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:30px;position:relative;overflow:hidden;backdrop-filter:blur(12px);transition:transform .5s var(--ease),border-color .3s,box-shadow .5s}
+.card:hover{transform:translateY(-6px);border-color:var(--accent);box-shadow:var(--shadow)}
+.card::after{content:"";position:absolute;inset:0;background:radial-gradient(500px circle at var(--mx,50%) var(--my,0%),rgba(16,185,129,.12),transparent 45%);opacity:0;transition:opacity .3s;pointer-events:none}
+.card:hover::after{opacity:1}
+.card p{color:var(--muted);margin-top:10px;font-size:.95rem}
+.ico{width:48px;height:48px;border-radius:14px;background:var(--grad-green);display:grid;place-items:center;margin-bottom:20px;color:#fff;font-size:1.3rem}
+/* BENTO */
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+.b-lg{grid-column:span 4}.b-md{grid-column:span 3}.b-sm{grid-column:span 2}
+.card .big{font-family:var(--font-head);font-size:3rem;font-weight:800;margin-top:12px}
+.bars{display:flex;align-items:flex-end;gap:6px;height:100px;margin-top:24px}
+.bars i{flex:1;border-radius:6px 6px 2px 2px;background:var(--grad-green);opacity:.8;transform-origin:bottom;transform:scaleY(0);transition:transform 1.2s var(--ease)}
+.in .bars i{transform:scaleY(1)}
+/* APP SECTION */
+.app-section{background:var(--bg-2);position:relative;overflow:hidden}
+.app-wrap{display:grid;grid-template-columns:320px 1fr;gap:0;border:1px solid var(--card-border);border-radius:var(--radius);overflow:hidden;height:620px;background:var(--card);backdrop-filter:blur(12px)}
+/* SIDEBAR */
+.app-sidebar{border-right:1px solid var(--card-border);display:flex;flex-direction:column;background:rgba(10,10,15,.6)}
+.sidebar-header{padding:16px;border-bottom:1px solid var(--card-border);display:flex;align-items:center;justify-content:space-between}
+.sidebar-header .logo-sm{font-family:var(--font-head);font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:8px}
+.sidebar-label{padding:12px 16px 6px;font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.deals-list{flex:1;overflow-y:auto;padding:0 8px 8px}
+.deal-item{padding:12px;border-radius:14px;cursor:pointer;border:1px solid transparent;transition:all .2s;margin-bottom:4px}
+.deal-item:hover{background:rgba(255,255,255,.04);border-color:var(--card-border)}
+.deal-item.active{background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.25)}
+.deal-name{font-weight:600;font-size:.85rem;color:var(--text)}
+.deal-arr{font-family:var(--font-mono);font-size:.78rem;color:var(--green);font-weight:500}
+.deal-meta{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+.stage-pill{font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.06em}
+.stage-disc{background:rgba(99,102,241,.15);color:#818cf8;border:1px solid rgba(99,102,241,.2)}
+.stage-prop{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.2)}
+.stage-neg{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.2)}
+.stage-won{background:rgba(34,211,238,.15);color:#22d3ee;border:1px solid rgba(34,211,238,.2)}
+.health-track{flex:1;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-left:8px}
+.health-fill{height:100%;border-radius:2px;background:var(--grad-green)}
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--card-border);display:flex;items-align:center;justify-content:space-between;font-size:.72rem}
+.sidebar-footer .dot{width:6px;height:6px;border-radius:50%;background:#22c55e;animation:glow 2s infinite}
+/* WORKSPACE */
+.app-workspace{display:flex;flex-direction:column}
+.ws-header{padding:14px 20px;border-bottom:1px solid var(--card-border);display:flex;align-items:center;justify-content:space-between;background:rgba(10,10,15,.4)}
+.ws-deal-name{font-family:var(--font-head);font-weight:700;font-size:1rem}
+.ws-tabs{display:flex;gap:2px;padding:3px;background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:999px}
+.ws-tab{padding:7px 16px;border-radius:999px;font-size:.78rem;font-weight:600;color:var(--muted);transition:all .2s;display:flex;align-items:center;gap:6px}
+.ws-tab.active{background:var(--grad-green);color:#fff}
+.ws-tab:hover:not(.active){color:var(--text)}
+/* COPILOT */
+.chat-toolbar{padding:10px 20px;border-bottom:1px solid var(--card-border);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.memory-toggle{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.toggle-track{width:34px;height:18px;border-radius:999px;background:#1e293b;cursor:pointer;position:relative;transition:background .3s}
+.toggle-track.on{background:var(--green)}
+.toggle-knob{width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:transform .3s}
+.toggle-track.on .toggle-knob{transform:translateX(16px)}
+.quick-btns{display:flex;gap:6px}
+.quick-btn{padding:5px 12px;border-radius:999px;font-size:.72rem;font-weight:500;color:var(--muted);border:1px solid var(--card-border);background:var(--card);cursor:pointer;transition:all .2s;white-space:nowrap}
+.quick-btn:hover{color:var(--text);border-color:var(--accent)}
+.chat-log{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
+.chat-log::-webkit-scrollbar{width:3px}.chat-log::-webkit-scrollbar-thumb{background:#1e293b;border-radius:3px}
+.msg{display:flex;gap:10px;align-items:flex-start}
+.msg.user{flex-direction:row-reverse}
+.msg-avatar{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:.7rem;shrink:0;flex-shrink:0}
+.msg-avatar.ai{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.2);color:var(--green)}
+.msg-avatar.user-av{background:rgba(255,255,255,.06);border:1px solid var(--card-border);color:var(--muted)}
+.msg-bubble{max-width:72%;padding:14px 16px;border-radius:16px;font-size:.82rem;line-height:1.65}
+.msg-bubble.ai{background:rgba(255,255,255,.04);border:1px solid var(--card-border)}
+.msg-bubble.user-b{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.15)}
+.msg-bubble.stateless{background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.12)}
+.msg-label{font-size:.68rem;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.msg-label.ai-label{color:var(--green)}
+.msg-label.sl-label{color:#f87171}
+/* MEMORY TRACE */
+.mem-trace-header{font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.mem-trace-item{border-left:2px solid rgba(16,185,129,.4);padding:6px 10px;margin-bottom:4px;border-radius:0 8px 8px 0;background:rgba(16,185,129,.04);animation:traceIn .4s var(--ease) both}
+@keyframes traceIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+.mem-trace-item .trace-top{display:flex;align-items:center;gap:8px;margin-bottom:2px}
+.trace-id{font-family:var(--font-mono);font-size:.6rem;color:rgba(16,185,129,.5)}
+.trace-who{font-size:.7rem;font-weight:600;color:var(--text)}
+.trace-cat{font-size:.6rem;padding:1px 6px;border-radius:4px;background:rgba(255,255,255,.06);color:var(--muted)}
+.trace-date{font-family:var(--font-mono);font-size:.6rem;color:var(--muted);margin-left:auto}
+.trace-content{font-size:.7rem;color:var(--muted);line-height:1.5}
+.msg-divider{border-top:1px solid var(--card-border);margin:8px 0}
+.ai-reply{font-size:.82rem;color:var(--text);line-height:1.7}
+.ai-reply strong{color:var(--green)}
+/* THINKING */
+.thinking-msg{display:flex;gap:10px;align-items:flex-start}
+.thinking-bubble{padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:16px;max-width:72%}
+.thinking-dots{display:flex;gap:5px;align-items:center;margin-bottom:6px}
+.td{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 1.2s infinite}
+.td:nth-child(2){animation-delay:.2s}.td:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+.thinking-search{font-size:.7rem;color:var(--muted);display:flex;align-items:center;gap:6px;font-family:var(--font-mono)}
+/* CHAT INPUT */
+.chat-input-wrap{padding:14px 20px;border-top:1px solid var(--card-border);background:rgba(10,10,15,.3)}
+.chat-form{display:flex;gap:8px;align-items:flex-end}
+.chat-input-wrap textarea{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:14px;padding:11px 16px;color:var(--text);font:inherit;font-size:.82rem;resize:none;transition:border-color .2s;min-height:42px;max-height:100px}
+.chat-input-wrap textarea:focus{outline:none;border-color:rgba(16,185,129,.4)}
+.chat-input-wrap textarea::placeholder{color:var(--muted)}
+.send-btn{width:42px;height:42px;border-radius:12px;background:var(--grad-green);color:#fff;display:grid;place-items:center;transition:transform .2s,opacity .2s;flex-shrink:0}
+.send-btn:hover{transform:scale(1.06)}
+.send-btn:disabled{opacity:.5}
+/* RETAIN TAB */
+.retain-wrap{flex:1;overflow-y:auto;padding:24px}
+.form-field{margin-bottom:16px}
+.form-field label{display:block;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px}
+.form-field input,.form-field textarea,.form-field select{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--card-border);border-radius:12px;padding:11px 16px;color:var(--text);font:inherit;font-size:.82rem;transition:border-color .2s}
+.form-field input:focus,.form-field textarea:focus,.form-field select:focus{outline:none;border-color:rgba(16,185,129,.4)}
+.form-field textarea{resize:vertical;min-height:110px;font-family:var(--font-mono)}
+.form-field select{cursor:pointer}
+/* MEMORY BANK TAB */
+.memory-wrap{flex:1;overflow-y:auto;padding:24px}
+.mem-card{padding:16px;background:rgba(255,255,255,.03);border:1px solid var(--card-border);border-radius:16px;margin-bottom:10px;transition:border-color .2s}
+.mem-card:hover{border-color:rgba(16,185,129,.25)}
+.mem-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px;flex-wrap:wrap}
+.mem-card-title{display:flex;align-items:center;gap:8px}
+.mem-id{font-family:var(--font-mono);font-size:.65rem;color:rgba(16,185,129,.5)}
+.mem-who{font-size:.8rem;font-weight:600}
+.mem-catbadge{font-size:.65rem;padding:2px 8px;border-radius:6px;background:rgba(255,255,255,.06);color:var(--muted)}
+.mem-date{font-family:var(--font-mono);font-size:.65rem;color:var(--muted)}
+.mem-content{font-size:.78rem;color:var(--muted);line-height:1.6;font-family:var(--font-mono)}
+.mem-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.mem-tag{font-size:.62rem;padding:2px 8px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid var(--card-border);color:var(--muted)}
+/* REFLECT TAB */
+.reflect-wrap{flex:1;overflow-y:auto;padding:24px}
+.reflect-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.reflect-card{background:rgba(255,255,255,.03);border:1px solid var(--card-border);border-radius:16px;padding:20px;transition:border-color .3s}
+.reflect-card:hover{border-color:rgba(99,102,241,.3)}
+.reflect-num{font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px}
+.reflect-title{font-family:var(--font-head);font-size:.95rem;font-weight:700;margin-bottom:10px}
+.confidence{display:inline-flex;align-items:center;gap:4px;font-size:.7rem;font-weight:600;color:var(--green);background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:999px;padding:2px 8px;margin-bottom:12px}
+.reflect-desc{font-size:.78rem;color:var(--muted);line-height:1.6;margin-bottom:12px}
+.reflect-play{background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.15);border-radius:10px;padding:10px 12px;font-size:.75rem;color:var(--text)}
+.reflect-play strong{color:#818cf8}
+/* PROCESS / STEPS */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;counter-reset:s}
+.step{counter-increment:s;padding:28px;border-radius:var(--radius);border:1px solid var(--card-border);background:var(--card)}
+.step::before{content:"0" counter(s);font-family:var(--font-head);font-weight:800;font-size:2.4rem;background:var(--grad-green);-webkit-background-clip:text;background-clip:text;color:transparent;display:block;margin-bottom:12px}
+.step p{color:var(--muted);margin-top:8px;font-size:.92rem}
+/* CTA BOX */
+.cta-box{position:relative;overflow:hidden;border-radius:28px;padding:clamp(44px,7vw,90px) 30px;text-align:center;background:var(--grad-green);color:#fff}
+.cta-box::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 0%,rgba(255,255,255,.25),transparent 50%),radial-gradient(circle at 90% 100%,rgba(0,0,0,.2),transparent 50%)}
+.cta-box>*{position:relative}
+.cta-box p{max-width:540px;margin:16px auto 30px;opacity:.9}
+.cta-box .btn{background:#fff;color:#0F172A}
+.cta-box .btn:hover{transform:translateY(-3px) scale(1.04)}
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);z-index:200;display:none;place-items:center}
+.modal-overlay.open{display:grid}
+.modal{background:var(--bg-2);border:1px solid var(--card-border);border-radius:var(--radius);width:min(480px,calc(100% - 32px));padding:0;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.5)}
+.modal-header{padding:20px 24px;border-bottom:1px solid var(--card-border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:var(--font-head);font-size:1.1rem;font-weight:700}
+.modal-body{padding:24px}
+.modal-actions{display:flex;gap:10px;margin-top:20px}
+.modal-actions .btn{flex:1}
+.close-btn{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.06);display:grid;place-items:center;color:var(--muted);transition:all .2s;font-size:.85rem}
+.close-btn:hover{background:rgba(255,255,255,.1);color:var(--text)}
+/* FOOTER */
+footer{border-top:1px solid var(--card-border);padding:72px 0 32px;background:var(--bg-2)}
+.foot-grid{display:grid;grid-template-columns:1.5fr repeat(3,1fr);gap:40px}
+.foot-grid p{color:var(--muted);margin-top:14px;max-width:280px;font-size:.92rem}
+.foot-grid h4{font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;color:var(--muted)}
+.foot-grid li{margin-bottom:10px;color:var(--muted);font-size:.9rem}
+.foot-grid li a:hover{color:var(--accent)}
+.foot-bottom{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:56px;padding-top:24px;border-top:1px solid var(--card-border);color:var(--muted);font-size:.82rem}
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .9s var(--ease),transform .9s var(--ease);transition-delay:var(--d,0s)}
+.reveal.in{opacity:1;transform:none}
+/* RESPONSIVE */
+@media(max-width:1000px){
+  .nav-links{display:none}
+  .bento{grid-template-columns:repeat(2,1fr)}.b-lg,.b-md,.b-sm{grid-column:span 2}.b-sm{grid-column:span 1}
+  .steps,.reflect-grid{grid-template-columns:repeat(2,1fr)}
+  .app-wrap{grid-template-columns:1fr;height:auto}.app-sidebar{display:none}
+}
+@media(max-width:600px){.steps{grid-template-columns:1fr}.foot-grid{grid-template-columns:1fr}}
+
+/* Visible Ambient Cursor Glow Spotlight */
+.cursor-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.30) 0%, rgba(16, 185, 129, 0.18) 40%, transparent 70%);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 99999;
+  filter: blur(28px);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+</style>
+</head>
+<body>
+<div class="cursor-glow" id="cursor-glow"></div>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="container">
+    <div class="nav-inner">
+      <a href="#top" class="logo">
+        <span class="logo-mark"><i class="fa-solid fa-brain" style="font-size:.8rem"></i></span>DealMind
+      </a>
+      <nav class="nav-links">
+        <a href="#how">How It Works</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#why">Enterprise Value</a>
+        <a href="#pricing">Pricing</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="/app" class="btn btn-primary"><i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.75rem"></i> Launch Console</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="mesh"><span></span><span></span><span></span></div>
+  <div class="grid-bg"></div>
+  <div class="container">
+    <div class="hero-content">
+      <div class="badge reveal"><i></i> Powered by Vectorize Hindsight · Long-Term Agent Memory</div>
+      <h1 class="reveal" style="--d:.1s">Your AI sales agent that <span class="grad-green-text">never forgets.</span></h1>
+      <p class="lead reveal" style="--d:.2s">DealMind gives enterprise sales teams an AI copilot that remembers every stakeholder, objection, and constraint across months of deal cycles — and uses that memory to close faster.</p>
+      <div class="hero-cta reveal" style="--d:.3s">
+        <a href="/app" class="btn btn-primary">See it live →</a>
+        <a href="#how" class="btn btn-ghost">How it works</a>
+      </div>
+      <div class="hero-stats reveal" style="--d:.4s">
+        <div><b class="grad-green-text">45 Days</b><span>faster deal close</span></div>
+        <div><b class="grad-green-text">96%</b><span>memory recall accuracy</span></div>
+        <div><b class="grad-green-text">83%</b><span>lower LLM token cost</span></div>
+        <div><b class="grad-green-text">0</b><span>missed objections</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST MARQUEE -->
+<div class="logos">
+  <div class="container">
+    <p>Trusted by enterprise sales teams across</p>
+    <div class="marquee"><div class="track" id="track">
+      <span>SaaS</span><span>Healthcare</span><span>Logistics</span><span>FinTech</span><span>E-Commerce</span><span>Manufacturing</span><span>Insurance</span><span>Legal</span>
+    </div></div>
+  </div>
+</div>
+
+<!-- WHY SECTION -->
+<section id="why">
+  <div class="container">
+    <div class="section-head reveal">
+      <div class="eyebrow">The Problem</div>
+      <h2>Standard AI tools have <span class="grad-text">catastrophic amnesia.</span></h2>
+      <p>Your best sales rep just walked into call #3 with a ₹37L enterprise account. The AI assistant they use just proposed ₹55L on a shared public cloud — directly violating the compliance mandate their CTO stated in call #1 and blowing past procurement's budget cap set in call #2. The deal dies. ₹37L of pipeline evaporates.</p>
+    </div>
+    <div class="bento">
+      <article class="card b-lg reveal">
+        <div class="ico"><i class="fa-solid fa-brain"></i></div>
+        <h3>Persistent Multi-Session Memory</h3>
+        <p>Every call note, compliance constraint, and pricing objection is retained in Hindsight's memory bank — not just for one session, but across weeks and months of deal cycles.</p>
+        <div class="bars"><i style="height:30%"></i><i style="height:50%"></i><i style="height:45%"></i><i style="height:72%"></i><i style="height:65%"></i><i style="height:88%"></i><i style="height:100%"></i></div>
+      </article>
+      <article class="card b-sm reveal" style="--d:.1s">
+        <div class="ico"><i class="fa-solid fa-magnifying-glass"></i></div>
+        <h3>Hybrid Recall Engine</h3>
+        <p>BM25 keyword search + semantic embeddings + temporal reranking. Exact numbers, compliance acronyms, and stakeholder names — never missed.</p>
+      </article>
+      <article class="card b-sm reveal">
+        <div class="ico"><i class="fa-solid fa-chart-line"></i></div>
+        <h3>Cross-Deal Pattern Synthesis</h3>
+        <p>Reflect across 50+ deals to identify winning patterns, budget cliffs, and competitor weaknesses your whole team can act on.</p>
+      </article>
+      <article class="card b-md reveal" style="--d:.1s">
+        <div class="ico"><i class="fa-solid fa-bolt"></i></div>
+        <h3>Real-Time Copilot</h3>
+        <p>Ask DealMind anything before a call. It briefs you in seconds using every past interaction, stakeholder preference, and deal constraint — no manual note-reading required.</p>
+        <div class="big grad-green-text">< 1s</div>
+        <p style="margin-top:4px">Average memory recall latency</p>
+      </article>
+      <article class="card b-sm reveal" style="--d:.2s">
+        <div class="ico"><i class="fa-solid fa-shield-halved"></i></div>
+        <h3>Any Industry</h3>
+        <p>HIPAA, SEBI, SOC2, SLA mandates — DealMind retains compliance gates for any regulated vertical.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" style="background:var(--bg-2)">
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="eyebrow">How It Works</div>
+      <h2>Three operations. <span class="grad-green-text">Infinite memory.</span></h2>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><h3>Retain</h3><p>After every call, paste notes or transcripts. Hindsight extracts stakeholders, budget limits, compliance rules, and objections automatically.</p></div>
+      <div class="step reveal" style="--d:.1s"><h3>Recall</h3><p>Before the next call, DealMind queries the memory bank using hybrid BM25 + semantic search, surfacing exact constraints from months ago in under a second.</p></div>
+      <div class="step reveal" style="--d:.2s"><h3>Reflect</h3><p>Across all your deals, Hindsight identifies which objections are universal, which pricing structures win, and which approaches reliably close enterprise accounts.</p></div>
+      <div class="step reveal" style="--d:.3s"><h3>Close</h3><p>DealMind drafts personalized proposals, pre-call briefings, and negotiation emails using 100% contextual memory — not generic templates.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURAL DIFFERENTIATION (Why Standard Chatbots Fail in Enterprise B2B) -->
+<section id="architecture" style="background:var(--bg);padding:90px 0;border-top:1px solid var(--card-border);border-bottom:1px solid var(--card-border)">
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="eyebrow">Enterprise Cognition Engine</div>
+      <h2>Why B2B Deal Execution Breaks on <span class="grad-green-text">Standard Chatbots.</span></h2>
+      <p style="max-width:760px;margin-inline:auto;font-size:1.05rem;color:var(--muted)">Standard commercial LLM interfaces (ChatGPT, Copilot) are stateless by design. Enterprise deal execution requires persistent episodic continuity across multi-stakeholder negotiation horizons.</p>
+    </div>
+
+    <!-- 3 Core Architectural Pillars -->
+    <div class="grid-3 reveal" style="margin-top:40px;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px">
+      <article class="card" style="padding:28px">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(239,68,68,0.15);display:flex;align-items:center;justify-content:center;color:#ef4444;font-size:1.1rem;margin-bottom:16px"><i class="fa-solid fa-hourglass-end"></i></div>
+        <h3 style="font-size:1.15rem;margin-bottom:10px">The Context Amnesia Barrier</h3>
+        <p style="font-size:.88rem;color:var(--muted);line-height:1.6">Generic conversational bots operate within an ephemeral token window. Once a session terminates, historical objections, budget caps discussed 4 weeks prior, and vendor disqualifiers vanish completely. DealMind retains every interaction into persistent episodic memory units via Vectorize Hindsight.</p>
+      </article>
+
+      <article class="card" style="padding:28px">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(99,102,241,0.15);display:flex;align-items:center;justify-content:center;color:#818cf8;font-size:1.1rem;margin-bottom:16px"><i class="fa-solid fa-diagram-project"></i></div>
+        <h3 style="font-size:1.15rem;margin-bottom:10px">Multi-Stakeholder Disambiguation</h3>
+        <p style="font-size:.88rem;color:var(--muted);line-height:1.6">Enterprise sales involve conflicting signals: the CTO demands on-premises VPC isolation, while the CFO enforces a strict $45,000 budget cap. Naive vector search flattens these into unweighted text snippets. DealMind models stakeholder influence graphs, ensuring proposals satisfy competing constraints simultaneously.</p>
+      </article>
+
+      <article class="card" style="padding:28px">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(16,185,129,0.15);display:flex;align-items:center;justify-content:center;color:#10b981;font-size:1.1rem;margin-bottom:16px"><i class="fa-solid fa-brain"></i></div>
+        <h3 style="font-size:1.15rem;margin-bottom:10px">Autonomous Inductive Reflection</h3>
+        <p style="font-size:.88rem;color:var(--muted);line-height:1.6">Standard chatbots are purely auto-regressive and reactive: they only answer what they are prompted. Powered by Hindsight's <code>reflect()</code> cognitive primitive, DealMind runs cross-deal pattern recognition across the entire pipeline, diagnosing why specific pitches win and projecting risk vectors before customer churn occurs.</p>
+      </article>
+    </div>
+
+    <!-- Technical Comparison Matrix -->
+    <div class="reveal" style="margin-top:50px;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)">
+      <div style="padding:24px 28px;border-bottom:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <div>
+          <h3 style="font-size:1.1rem;font-weight:700">Enterprise Cognitive Matrix: Architectural Comparison</h3>
+          <p style="font-size:0.8rem;color:var(--muted);margin-top:4px">Evaluated against enterprise RFP compliance, SLA thresholds, and sales execution velocity.</p>
+        </div>
+        <a href="/app" class="btn btn-primary" style="font-size:.82rem;padding:8px 16px">Open Live Console →</a>
+      </div>
+
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;text-align:left;font-size:0.86rem">
+          <thead>
+            <tr style="background:rgba(255,255,255,0.02);border-bottom:1px solid var(--card-border);font-family:var(--font-mono);font-size:0.75rem;text-transform:uppercase;color:var(--muted)">
+              <th style="padding:16px 24px">Cognitive Capability</th>
+              <th style="padding:16px 20px">Standard Chatbot (ChatGPT / Copilot)</th>
+              <th style="padding:16px 20px">Naive Vector RAG (Pinecone / Chroma)</th>
+              <th style="padding:16px 24px;background:rgba(16,185,129,0.08);color:var(--green)">DealMind (Vectorize Hindsight)</th>
+            </tr>
+          </thead>
+          <tbody style="divide-y divide-white/5">
+            <tr style="border-bottom:1px solid var(--card-border)">
+              <td style="padding:16px 24px;font-weight:600">Memory Horizon</td>
+              <td style="padding:16px 20px;color:var(--muted)">❌ Ephemeral (Wiped upon session reset)</td>
+              <td style="padding:16px 20px;color:var(--muted)">⚠️ Static document chunks only</td>
+              <td style="padding:16px 24px;background:rgba(16,185,129,0.04);font-weight:600;color:#34d399">✅ Continuous multi-quarter episodic memory</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--card-border)">
+              <td style="padding:16px 24px;font-weight:600">Temporal Decay & Recency</td>
+              <td style="padding:16px 20px;color:var(--muted)">❌ No temporal model</td>
+              <td style="padding:16px 20px;color:var(--muted)">⚠️ Top-k similarity ignores chronology</td>
+              <td style="padding:16px 24px;background:rgba(16,185,129,0.04);font-weight:600;color:#34d399">✅ Chronological weighting + recency decay</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--card-border)">
+              <td style="padding:16px 24px;font-weight:600">Stakeholder Constraint Attribution</td>
+              <td style="padding:16px 20px;color:var(--muted)">❌ Confounds multi-user quotes</td>
+              <td style="padding:16px 20px;color:var(--muted)">⚠️ Unstructured string matching</td>
+              <td style="padding:16px 24px;background:rgba(16,185,129,0.04);font-weight:600;color:#34d399">✅ Graph-attributed stakeholder constraints</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--card-border)">
+              <td style="padding:16px 24px;font-weight:600">Cross-Deal Inductive Reflection</td>
+              <td style="padding:16px 20px;color:var(--muted)">❌ 0% (Purely reactive token generation)</td>
+              <td style="padding:16px 20px;color:var(--muted)">❌ None (Read-only retrieval index)</td>
+              <td style="padding:16px 24px;background:rgba(16,185,129,0.04);font-weight:600;color:#34d399">✅ Autonomous synthesis across deal history</td>
+            </tr>
+            <tr>
+              <td style="padding:16px 24px;font-weight:600">Verifiable Audit Provenance</td>
+              <td style="padding:16px 20px;color:var(--muted)">❌ Hallucination risks without citation</td>
+              <td style="padding:16px 20px;color:var(--muted)">⚠️ Opaque cosine similarity scores</td>
+              <td style="padding:16px 24px;background:rgba(16,185,129,0.04);font-weight:600;color:#34d399">✅ Deterministic <code>[mem-id]</code> citation provenance</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Dedicated Full Screen Callout Card -->
+    <div class="reveal" style="margin-top:40px;background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(34,211,238,0.05));border:1px solid rgba(16,185,129,0.3);border-radius:var(--radius);padding:36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px">
+      <div>
+        <span class="badge" style="margin-bottom:12px;background:rgba(16,185,129,0.2);color:var(--green)">Ready for Production</span>
+        <h3 style="font-size:1.4rem;font-weight:800;color:#fff">Experience the Dedicated DealMind Console</h3>
+        <p style="font-size:0.92rem;color:var(--muted);max-width:600px;margin-top:6px">Test live multi-turn negotiation, inspect recalled memory citations, or retain new customer constraints in real time.</p>
+      </div>
+      <a href="/app" class="btn btn-primary" style="padding:14px 28px;font-size:1rem">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Launch Full Console →
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE APP PREVIEW -->
+<section id="demo">
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="eyebrow">Live Demo</div>
+      <h2>Try it now. <span class="grad-green-text">See the difference.</span></h2>
+      <p>Toggle memory on and off. Watch how the AI response changes completely when it has access to Hindsight's memory bank.</p>
+    </div>
+    <div class="app-wrap reveal">
+      <!-- SIDEBAR -->
+      <div class="app-sidebar">
+        <div class="sidebar-header">
+          <div class="logo-sm"><span class="logo-mark" style="width:24px;height:24px;font-size:.7rem"><i class="fa-solid fa-brain"></i></span>Pipeline</div>
+          <button onclick="openNewDealModal()" style="font-size:.7rem;padding:5px 12px;border-radius:999px;background:var(--grad-green);color:#fff;font-weight:600">+ Add</button>
+        </div>
+        <div class="sidebar-label">Active Deals</div>
+        <div class="deals-list" id="dealsListContainer"></div>
+        <div class="sidebar-footer">
+          <div style="display:flex;align-items:center;gap:6px"><div class="dot"></div><span style="font-size:.7rem;color:var(--muted)">Hindsight Connected</span></div>
+          <span style="color:var(--green);font-weight:600;font-size:.7rem" id="totalMemBadge">5 Memories</span>
+        </div>
+      </div>
+      <!-- WORKSPACE -->
+      <div class="app-workspace">
+        <div class="ws-header">
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+              <span class="ws-deal-name" id="activeDealName">Zerodha</span>
+              <span class="stage-pill stage-neg" id="activeDealStage">Negotiation</span>
+              <span style="font-family:var(--font-mono);font-size:.8rem;color:var(--green);font-weight:600" id="activeDealArr">$44,500 ARR</span>
+            </div>
+            <div style="font-size:.72rem;color:var(--muted)">Stakeholders: <span id="activeDealStakeholders">Kiran Nair (CTO), Priya Menon (Procurement)</span></div>
+          </div>
+          <div class="ws-tabs">
+            <button class="ws-tab active" id="tabBtn-copilot" onclick="switchTab('copilot')"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Copilot</button>
+            <button class="ws-tab" id="tabBtn-notes" onclick="switchTab('notes')"><i class="fa-solid fa-file-import"></i> Retain</button>
+            <button class="ws-tab" id="tabBtn-memory" onclick="switchTab('memory')"><i class="fa-solid fa-database"></i> Memory</button>
+            <button class="ws-tab" id="tabBtn-reflection" onclick="switchTab('reflection')"><i class="fa-solid fa-chart-line"></i> Reflect</button>
+          </div>
+        </div>
+
+        <!-- COPILOT TAB -->
+        <div id="tab-copilot" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+          <div class="chat-toolbar">
+            <div class="memory-toggle">
+              <div class="toggle-track on" id="toggleTrack" onclick="toggleMemory()"><div class="toggle-knob"></div></div>
+              <span id="toggleLabel" style="color:var(--green);font-weight:600">Hindsight Memory Active</span>
+            </div>
+            <div class="quick-btns">
+              <button class="quick-btn" onclick="sendQuick('Brief me before my next call with this client. What must I know?')">📋 Pre-Call Brief</button>
+              <button class="quick-btn" onclick="sendQuick('Draft a personalized follow-up proposal email to the procurement team.')">📧 Draft Email</button>
+              <button class="quick-btn" onclick="sendQuick('What is the final recommended price and deal structure to close today?')">💰 Pricing Play</button>
+              <button class="quick-btn" onclick="sendQuick('What are the active objections and risks that could kill this deal?')">⚠️ Deal Risks</button>
+            </div>
+          </div>
+          <div class="chat-log" id="chatLog">
+            <div class="msg">
+              <div class="msg-avatar ai"><i class="fa-solid fa-brain"></i></div>
+              <div class="msg-bubble ai">
+                <div class="msg-label ai-label"><i class="fa-solid fa-brain"></i> DealMind Copilot <span style="color:var(--muted);font-weight:400">· Hindsight Memory Loaded</span></div>
+                <div style="font-size:.82rem;color:var(--text)">Ready. I have indexed all past interactions for this account. Every answer I give cites the exact memory I pulled from — not a hallucination, not a generic template.<br><br><span style="color:var(--muted)">Use the quick action buttons above or ask me anything about this deal.</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="chat-input-wrap">
+            <form class="chat-form" onsubmit="handleChat(event)">
+              <textarea id="chatInput" rows="1" placeholder="Ask anything about this deal — pricing, objections, compliance constraints, proposal drafts..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();handleChat(event)}"></textarea>
+              <button type="submit" class="send-btn" id="sendBtn"><i class="fa-solid fa-paper-plane" style="font-size:.75rem"></i></button>
+            </form>
+          </div>
+        </div>
+
+        <!-- RETAIN TAB -->
+        <div id="tab-notes" style="display:none;flex:1;overflow:hidden">
+          <div class="retain-wrap">
+            <div style="margin-bottom:20px"><h3 style="margin-bottom:6px">Ingest New Interaction</h3><p style="color:var(--muted);font-size:.82rem">Paste call notes, transcript excerpts, or emails. Hindsight extracts entities, stakeholder constraints, and deal signals automatically.</p></div>
+            <form onsubmit="handleRetain(event)">
+              <div class="form-field"><label>Stakeholder</label><input id="noteStakeholder" required placeholder="e.g. Kiran Nair (CTO)"></div>
+              <div class="form-field"><label>Category</label><select id="noteCategory"><option>Compliance & Security</option><option>Budget & Pricing Gate</option><option>Competitor Mention</option><option>Performance & SLA</option><option>Infrastructure Requirement</option><option>General Meeting Notes</option></select></div>
+              <div class="form-field"><label>Notes / Transcript</label><textarea id="noteContent" required placeholder="Paste exactly what was said. Include objections, budget limits, compliance mandates, timelines..."></textarea></div>
+              <button type="submit" class="btn btn-primary" id="retainBtn" style="width:100%"><i class="fa-solid fa-database"></i> Ingest into Hindsight Memory Bank</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- MEMORY TAB -->
+        <div id="tab-memory" style="display:none;flex:1;overflow:hidden">
+          <div class="memory-wrap" id="memoryWrap"><div style="color:var(--muted);font-size:.82rem">Loading memory bank...</div></div>
+        </div>
+
+        <!-- REFLECT TAB -->
+        <div id="tab-reflection" style="display:none;flex:1;overflow:hidden">
+          <div class="reflect-wrap">
+            <div style="margin-bottom:20px"><h3 style="margin-bottom:6px">Cross-Deal Intelligence</h3><p style="color:var(--muted);font-size:.82rem">Hindsight <span style="font-family:var(--font-mono);color:var(--green)">reflect()</span> synthesizes patterns across all accounts — any industry, any deal type.</p></div>
+            <div class="reflect-grid">
+              <div class="reflect-card"><div class="reflect-num">Pattern 01</div><div class="reflect-title">Compliance Gate Stall</div><div class="confidence"><i class="fa-solid fa-circle-check" style="font-size:.6rem"></i> 94% Confidence</div><p class="reflect-desc">Regulatory mandates (SOC2, HIPAA, SEBI, RBI) raised after Meeting 1 trigger automatic 6-week security review cycles across FinTech, Healthcare, and Gov accounts.</p><div class="reflect-play"><strong>WINNING PLAY:</strong> Lead with compliance certifications in Meeting #1 deck. Cuts review to 1 week.</div></div>
+              <div class="reflect-card"><div class="reflect-num">Pattern 02</div><div class="reflect-title">Procurement Budget Cliff</div><div class="confidence"><i class="fa-solid fa-circle-check" style="font-size:.6rem"></i> 91% Confidence</div><p class="reflect-desc">73% of mid-market accounts have an invisible department ceiling ($40k–$50k) where VP-level signing authority ends and board approval begins — adding 45–60 day delays.</p><div class="reflect-play"><strong>WINNING PLAY:</strong> Structure as base + modular add-ons. Stay under the ceiling. Closes same week.</div></div>
+              <div class="reflect-card"><div class="reflect-num">Pattern 03</div><div class="reflect-title">SLA Latency Dealbreaker</div><div class="confidence"><i class="fa-solid fa-circle-check" style="font-size:.6rem"></i> 88% Confidence</div><p class="reflect-desc">Logistics, Healthcare, and E-Commerce accounts have hard sub-200ms performance requirements. Vague SLA language eliminates you in technical bake-offs.</p><div class="reflect-play"><strong>WINNING PLAY:</strong> Provide verifiable P99 benchmarks with penalty refund clauses from Meeting 2.</div></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end workspace -->
+    </div><!-- end app-wrap -->
+  </div>
+</section>
+
+<!-- CTA -->
+<section style="padding-top:0;background:var(--bg-2)">
+  <div class="container">
+    <div class="cta-box reveal">
+      <h2>Stop losing deals to agent amnesia.</h2>
+      <p>DealMind remembers everything so your team doesn't have to. Start with $50 in free Hindsight credits.</p>
+      <a href="https://ui.hindsight.vectorize.io" target="_blank" class="btn">Get started free →</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div>
+        <a href="#top" class="logo"><span class="logo-mark"><i class="fa-solid fa-brain" style="font-size:.75rem"></i></span>DealMind</a>
+        <p>Enterprise deal intelligence powered by Vectorize Hindsight long-term agent memory.</p>
+      </div>
+      <div><h4>Product</h4><ul><li><a href="/app">Live Console</a></li><li><a href="#architecture">Architecture</a></li><li><a href="#how">How It Works</a></li><li><a href="https://github.com/vectorize-io/hindsight" target="_blank">Hindsight GitHub</a></li><li><a href="https://hindsight.vectorize.io" target="_blank">Documentation</a></li></ul></div>
+      <div><h4>Use Cases</h4><ul><li>Enterprise Sales</li><li>Healthcare CRM</li><li>Logistics Deals</li><li>SaaS Revenue</li></ul></div>
+      <div><h4>Built With</h4><ul><li><a href="https://hindsight.vectorize.io" target="_blank">Vectorize Hindsight</a></li><li><a href="https://vectorize.io/what-is-agent-memory" target="_blank">Agent Memory</a></li><li>FastAPI · Python</li><li>Groq LLM</li></ul></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 DealMind · Built by Team CoreStack</span><span style="color:var(--muted)">Powered by <a href="https://vectorize.io" style="color:var(--green)">Vectorize Hindsight</a></span></div>
+  </div>
+</footer>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="newDealModal">
+  <div class="modal">
+    <div class="modal-header"><h4 class="modal-title">New Enterprise Account</h4><button class="close-btn" onclick="closeNewDeal()"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <form onsubmit="handleCreateDeal(event)">
+        <div class="form-field"><label>Company Name</label><input id="nd-name" required placeholder="e.g. Swiggy, PhonePe, HDFC Bank"></div>
+        <div class="form-field"><label>Deal Size (USD ARR)</label><input type="number" id="nd-arr" required placeholder="e.g. 75000" style="font-family:var(--font-mono)"></div>
+        <div class="form-field"><label>Key Stakeholders</label><input id="nd-stakeholders" required placeholder="e.g. Rohit (CTO), Nisha (Procurement)"></div>
+        <div class="form-field"><label>Stage</label><select id="nd-stage"><option value="Discovery">Discovery</option><option value="Proposal Review">Proposal Review</option><option value="Negotiation">Negotiation</option><option value="Closed-Won">Closed-Won</option></select></div>
+        <div class="modal-actions"><button type="button" class="btn btn-ghost" onclick="closeNewDeal()">Cancel</button><button type="submit" class="btn btn-primary">Create Deal</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal">
+    <div class="modal-header"><h4 class="modal-title">Hindsight Configuration</h4><button class="close-btn" onclick="closeSettings()"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="modal-body">
+      <form onsubmit="handleSettings(event)">
+        <div class="form-field"><label>API Key</label><input type="password" id="cfg-key" value="hsk_329908dc7a8f296f2771ff834b9c1864_f8a871b810eca7d4" placeholder="From ui.hindsight.vectorize.io"><p style="font-size:.72rem;color:var(--muted);margin-top:6px">Connected with promo credits: <strong style="color:var(--green);font-family:var(--font-mono)">MEMHACK99</strong> ($50 free credits)</p></div>
+        <div class="form-field"><label>Base URL</label><input id="cfg-url" value="https://api.hindsight.vectorize.io" style="font-family:var(--font-mono)"></div>
+        <div class="modal-actions"><button type="button" class="btn btn-ghost" onclick="closeSettings()">Cancel</button><button type="submit" class="btn btn-primary">Connect Hindsight</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  let activeDealId='deal-1',dealsData=[],memoryOn=true,currentTab='copilot',thinkCount=0;
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    fetchDeals();
+    // reveal
+    const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
+    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+    document.querySelectorAll('.card').forEach(c=>c.addEventListener('pointermove',e=>{const r=c.getBoundingClientRect();c.style.setProperty('--mx',(e.clientX-r.left)+'px');c.style.setProperty('--my',(e.clientY-r.top)+'px')}));
+    document.getElementById('track').innerHTML+=document.getElementById('track').innerHTML;
+  });
+
+  async function fetchDeals(){
+    const r=await fetch('/api/deals');const d=await r.json();dealsData=d.deals;
+    renderDeals();updateHeader();
+  }
+
+  function renderDeals(){
+    const c=document.getElementById('dealsListContainer');c.innerHTML='';
+    const sc={'Discovery':'stage-disc','Proposal Review':'stage-prop','Negotiation':'stage-neg','Closed-Won':'stage-won'};
+    dealsData.forEach(deal=>{
+      const isAct=deal.id===activeDealId;
+      const div=document.createElement('div');
+      div.className='deal-item'+(isAct?' active':'');
+      div.onclick=()=>selectDeal(deal.id);
+      div.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span class="deal-name">${deal.name}</span><span class="deal-arr">$${(deal.arr/1000).toFixed(0)}k</span></div><div class="deal-meta"><span class="stage-pill ${sc[deal.stage]||'stage-disc'}">${deal.stage}</span><div class="health-track"><div class="health-fill" style="width:${deal.health_score||75}%"></div></div></div>`;
+      c.appendChild(div);
+    });
+  }
+
+  function selectDeal(id){activeDealId=id;renderDeals();updateHeader();if(currentTab==='memory')loadMemories();}
+  function updateHeader(){
+    const d=dealsData.find(x=>x.id===activeDealId);if(!d)return;
+    document.getElementById('activeDealName').innerText=d.name;
+    const sc={'Discovery':'stage-disc','Proposal Review':'stage-prop','Negotiation':'stage-neg','Closed-Won':'stage-won'};
+    const sb=document.getElementById('activeDealStage');sb.innerText=d.stage;sb.className='stage-pill '+(sc[d.stage]||'stage-disc');
+    document.getElementById('activeDealArr').innerText='$'+d.arr.toLocaleString()+' ARR';
+    document.getElementById('activeDealStakeholders').innerText=Array.isArray(d.stakeholders)?d.stakeholders.join(', '):d.stakeholders;
+  }
+
+  function switchTab(tab){
+    currentTab=tab;
+    ['copilot','notes','memory','reflection'].forEach(t=>{
+      document.getElementById('tabBtn-'+t).className='ws-tab'+(t===tab?' active':'');
+      const p=document.getElementById('tab-'+t);
+      p.style.display=t===tab?'flex':'none';
+      if(t!=='copilot')p.style.flexDirection='column';
+    });
+    if(tab==='memory')loadMemories();
+  }
+
+  function toggleMemory(){
+    memoryOn=!memoryOn;
+    const tr=document.getElementById('toggleTrack');
+    const lb=document.getElementById('toggleLabel');
+    if(memoryOn){tr.classList.add('on');lb.style.color='var(--green)';lb.innerText='Hindsight Memory Active';}
+    else{tr.classList.remove('on');lb.style.color='#f87171';lb.innerText='Stateless Mode — Agent Amnesia';}
+  }
+
+  function sendQuick(txt){document.getElementById('chatInput').value=txt;handleChat(new Event('submit'));}
+
+  async function handleChat(e){
+    e.preventDefault();
+    const inp=document.getElementById('chatInput');
+    const txt=inp.value.trim();if(!txt)return;
+    inp.value='';
+    appendUserMsg(txt);
+    document.getElementById('sendBtn').disabled=true;
+    const tid=appendThinking();
+    try{
+      const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({deal_id:activeDealId,prompt:txt,use_memory:memoryOn})});
+      const data=await r.json();
+      removeThinking(tid);
+      appendAIMsg(data,memoryOn);
+    }catch{removeThinking(tid);appendAIMsg({reply:'Connection error. Make sure the server is running.'},false);}
+    document.getElementById('sendBtn').disabled=false;
+  }
+
+  function appendUserMsg(txt){
+    const c=document.getElementById('chatLog');
+    const d=document.createElement('div');
+    d.className='msg user';
+    d.style.animation='fadeUp .3s ease';
+    d.innerHTML=`<div class="msg-bubble user-b">${txt}</div><div class="msg-avatar user-av"><i class="fa-solid fa-user" style="font-size:.65rem"></i></div>`;
+    c.appendChild(d);c.scrollTop=c.scrollHeight;
+  }
+
+  function appendThinking(){
+    const id='think-'+(++thinkCount);
+    const c=document.getElementById('chatLog');
+    const d=document.createElement('div');d.id=id;d.className='thinking-msg';
+    const isOn=memoryOn;
+    d.innerHTML=`<div class="msg-avatar ${isOn?'ai':''}"><i class="fa-solid fa-brain" style="font-size:.65rem;color:${isOn?'var(--green)':'#f87171'}"></i></div><div class="thinking-bubble"><div class="thinking-dots"><div class="td"></div><div class="td"></div><div class="td"></div></div>${isOn?`<div class="thinking-search"><i class="fa-solid fa-magnifying-glass" style="color:var(--green);font-size:.65rem"></i>Querying Hindsight memory bank...</div><div class="thinking-search" style="margin-top:4px;opacity:.6"><i class="fa-solid fa-network-wired" style="color:var(--accent);font-size:.65rem"></i>Running BM25 + semantic rerank...</div>`:`<div style="font-size:.7rem;color:#f87171;font-family:var(--font-mono);margin-top:4px">Running without memory access...</div>`}</div>`;
+    c.appendChild(d);c.scrollTop=c.scrollHeight;return id;
+  }
+  function removeThinking(id){const el=document.getElementById(id);if(el)el.remove();}
+
+  function appendAIMsg(data,withMem){
+    const c=document.getElementById('chatLog');
+    const d=document.createElement('div');d.className='msg';d.style.animation='fadeUp .3s ease';
+    const mems=data.recalled_memories||[];
+    let traceHtml='';
+    if(withMem&&mems.length>0){
+      traceHtml=`<div class="mem-trace-header"><i class="fa-solid fa-magnifying-glass" style="color:var(--green);font-size:.6rem"></i>Hindsight recalled ${mems.length} memor${mems.length>1?'ies':'y'}</div>`+
+      mems.map((m,i)=>`<div class="mem-trace-item" style="animation-delay:${i*.15}s"><div class="trace-top"><span class="trace-id">[${m.id}]</span><span class="trace-who">${m.stakeholder}</span><span class="trace-cat">${m.category}</span><span class="trace-date">${(m.timestamp||'').substring(0,10)}</span></div><div class="trace-content">${m.content.substring(0,120)}${m.content.length>120?'...':''}</div></div>`).join('');
+      traceHtml+=`<div class="msg-divider"></div>`;
+    }else if(!withMem){
+      traceHtml=`<div style="font-size:.68rem;color:#f87171;font-family:var(--font-mono);margin-bottom:10px;padding:6px 10px;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.1);border-radius:8px"><i class="fa-solid fa-triangle-exclamation" style="margin-right:5px"></i>No memory searched — stateless execution. Response is generic.</div>`;
+    }
+    const bodyHtml=(marked.parse(data.reply||'')).replace(/<p>/g,'<p class="ai-reply">');
+    d.innerHTML=`<div class="msg-avatar ${withMem?'ai':''}"><i class="fa-solid fa-brain" style="font-size:.65rem;color:${withMem?'var(--green)':'#f87171'}"></i></div><div class="msg-bubble ${withMem?'ai':'stateless'}"><div class="msg-label ${withMem?'ai-label':'sl-label'}"><i class="fa-solid fa-brain"></i>${withMem?'DealMind Copilot':'Stateless Agent'}<span style="color:var(--muted);font-weight:400">· ${withMem?'memory-augmented':'no memory'}</span></div>${traceHtml}${bodyHtml}</div>`;
+    c.appendChild(d);c.scrollTop=c.scrollHeight;
+  }
+
+  async function handleRetain(e){
+    e.preventDefault();
+    const btn=document.getElementById('retainBtn');btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Ingesting...';
+    try{
+      const r=await fetch('/api/memories/retain',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({deal_id:activeDealId,stakeholder:document.getElementById('noteStakeholder').value.trim(),category:document.getElementById('noteCategory').value,content:document.getElementById('noteContent').value.trim()})});
+      const data=await r.json();
+      document.getElementById('noteContent').value='';document.getElementById('noteStakeholder').value='';
+      switchTab('copilot');
+      const c=document.getElementById('chatLog');const notice=document.createElement('div');notice.style.cssText='text-align:center;padding:8px';notice.innerHTML=`<span style="font-size:.7rem;color:var(--green);background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.15);border-radius:999px;padding:4px 14px;font-family:var(--font-mono)">✓ Memory ${data.memory.id} retained in Hindsight</span>`;c.appendChild(notice);c.scrollTop=c.scrollHeight;
+    }catch{alert('Error retaining note.');}
+    btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-database"></i> Ingest into Hindsight Memory Bank';
+  }
+
+  async function loadMemories(){
+    const c=document.getElementById('memoryWrap');c.innerHTML='<div style="color:var(--muted);font-size:.82rem;font-family:var(--font-mono)">Loading...</div>';
+    try{
+      const r=await fetch('/api/memories?deal_id='+activeDealId);const data=await r.json();c.innerHTML='';
+      if(!data.memories||!data.memories.length){c.innerHTML='<div style="color:var(--muted);font-size:.82rem;padding:20px;background:rgba(255,255,255,.02);border:1px solid var(--card-border);border-radius:14px">No memories stored for this account yet. Use the Retain tab to add interaction data.</div>';return;}
+      data.memories.forEach(m=>{
+        const card=document.createElement('div');card.className='mem-card';
+        card.innerHTML=`<div class="mem-card-top"><div class="mem-card-title"><span class="mem-id">${m.id}</span><span class="mem-who">${m.stakeholder}</span><span class="mem-catbadge">${m.category}</span></div><div style="display:flex;align-items:center;gap:10px"><span class="mem-date">${(m.timestamp||'').substring(0,10)}</span><button onclick="delMem('${m.id}')" style="font-size:.65rem;color:var(--muted);padding:3px 8px;border:1px solid var(--card-border);border-radius:6px;background:var(--card)">Delete</button></div></div><div class="mem-content">${m.content}</div><div class="mem-tags">${(m.entities||[]).map(e=>`<span class="mem-tag">${e}</span>`).join('')}</div>`;
+        c.appendChild(card);
+      });
+    }catch{c.innerHTML='<div style="color:#f87171">Error loading memories.</div>';}
+  }
+
+  async function delMem(id){if(!confirm('Delete this memory?'))return;await fetch('/api/memories/'+id,{method:'DELETE'});loadMemories();}
+
+  function openNewDealModal(){document.getElementById('newDealModal').classList.add('open');}
+  function closeNewDeal(){document.getElementById('newDealModal').classList.remove('open');}
+  function openSettings(){document.getElementById('settingsModal').classList.add('open');}
+  function closeSettings(){document.getElementById('settingsModal').classList.remove('open');}
+
+  async function handleCreateDeal(e){
+    e.preventDefault();
+    const r=await fetch('/api/deals',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:document.getElementById('nd-name').value.trim(),arr:parseFloat(document.getElementById('nd-arr').value),stakeholders:document.getElementById('nd-stakeholders').value.split(',').map(s=>s.trim()),stage:document.getElementById('nd-stage').value})});
+    const data=await r.json();closeNewDeal();await fetchDeals();selectDeal(data.deal.id);
+  }
+
+  async function handleSettings(e){
+    e.preventDefault();
+    await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({api_key:document.getElementById('cfg-key').value.trim(),base_url:document.getElementById('cfg-url').value.trim()})});
+    closeSettings();
+  }
+
+  document.getElementById('tab-notes').style.flexDirection='column';
+  document.getElementById('tab-memory').style.flexDirection='column';
+  document.getElementById('tab-reflection').style.flexDirection='column';
+
+  // Visible Ambient Cursor Glow Spotlight
+  const cursorGlow = document.getElementById('cursor-glow');
+  if (cursorGlow) {
+    window.addEventListener('mousemove', (e) => {
+      cursorGlow.style.opacity = '1';
+      cursorGlow.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+    }, { passive: true });
+    document.addEventListener('mouseleave', () => {
+      cursorGlow.style.opacity = '0';
+    });
+  }
+</script>
+<style>
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+</style>
+</body>
+</html>

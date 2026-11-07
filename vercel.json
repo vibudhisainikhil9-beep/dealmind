@@ -2,23 +2,12 @@
   "version": 2,
   "rewrites": [
     {
+      "source": "/app",
+      "destination": "/app.html"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/index.py"
-    },
-    {
-      "source": "/app",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/api/index.py"
     }
-  ],
-  "env": {
-    "HINDSIGHT_BASE_URL": "https://api.hindsight.vectorize.io"
-  }
+  ]
 }

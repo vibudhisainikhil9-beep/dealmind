@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DealMind — Enterprise Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+:root {
+  --bg-main: #0A0A0F;
+  --bg-sidebar: #101018;
+  --bg-input: #14141E;
+  --bg-hover: rgba(255, 255, 255, 0.06);
+  --text-main: #F5F5F7;
+  --text-sub: #D1D5DB;
+  --text-muted: #A1A1B5;
+  --primary: #6366F1;
+  --accent: #22D3EE;
+  --green: #10B981;
+  --grad: linear-gradient(135deg, #6366F1 0%, #22D3EE 100%);
+  --grad-green: linear-gradient(135deg, #10B981 0%, #22D3EE 100%);
+  --border: rgba(255, 255, 255, 0.09);
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-head: 'Manrope', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-main);
+  color: var(--text-main);
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============ GEMINI SIDEBAR ============ */
+.sidebar {
+  width: 260px;
+  background: var(--bg-sidebar);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  z-index: 50;
+  border-right: 1px solid var(--border);
+}
+.sidebar-top {
+  padding: 16px 16px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand-gemini {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-head);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main);
+  text-decoration: none;
+}
+.sparkle-icon {
+  width: 24px;
+  height: 24px;
+  position: relative;
+  display: inline-block;
+}
+.sparkle-icon svg { width: 100%; height: 100%; }
+
+.sidebar-icons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-sub);
+  font-size: 0.95rem;
+}
+.sidebar-icon-btn {
+  background: none;
+  border: none;
+  color: var(--text-sub);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+.sidebar-icon-btn:hover { background: var(--bg-hover); color: #fff; }
+
+.btn-new-chat {
+  margin: 12px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-main);
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-new-chat:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255,255,255,0.2); }
+
+.nav-group {
+  padding: 0 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.nav-item:hover { background: var(--bg-hover); color: var(--text-main); }
+.nav-item.active { background: rgba(16, 185, 129, 0.12); color: var(--green); font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.25); }
+.nav-item i { width: 18px; font-size: 0.95rem; text-align: center; }
+
+.section-divider {
+  padding: 16px 16px 6px;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.history-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 10px;
+}
+.history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  color: var(--text-sub);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+  transition: background 0.15s;
+  border: 1px solid transparent;
+}
+.history-item:hover { background: var(--bg-hover); color: var(--text-main); }
+.history-item.active { background: rgba(16, 185, 129, 0.08); border-color: rgba(16, 185, 129, 0.35); color: #fff; font-weight: 600; }
+.history-item span { overflow: hidden; text-overflow: ellipsis; }
+.history-badge { font-family: var(--font-mono); font-size: 0.72rem; color: var(--green); margin-left: 6px; }
+
+/* User Profile Footer (Exact Gemini Style with Nexora Palette) */
+.sidebar-user {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(10, 10, 15, 0.4);
+}
+.user-info-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--grad-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+}
+.user-details { display: flex; flex-direction: column; }
+.user-name { font-size: 0.84rem; font-weight: 600; color: var(--text-main); }
+.user-plan { font-size: 0.72rem; color: var(--accent); }
+
+/* ============ MAIN VIEWPORT ============ */
+.main-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: var(--bg-main);
+  overflow: hidden;
+}
+
+/* Ambient glow matching index.html mesh gradient language */
+.ambient-glow {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 720px;
+  height: 520px;
+  background: radial-gradient(ellipse at center, rgba(16, 185, 129, 0.14) 0%, rgba(34, 211, 238, 0.08) 35%, rgba(99, 102, 241, 0.05) 60%, transparent 80%);
+  pointer-events: none;
+  filter: blur(75px);
+  z-index: 1;
+  transition: opacity 0.5s ease;
+}
+
+.top-bar {
+  height: 60px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 10;
+  border-bottom: 1px solid var(--border);
+  background: rgba(10, 10, 15, 0.75);
+  backdrop-filter: blur(12px);
+}
+.deal-selector-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.82rem;
+  color: var(--text-main);
+}
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.pill-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.pill-btn:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255,255,255,0.2); }
+
+/* ============ GEMINI HOME STATE (Hero Center) ============ */
+.gemini-home {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24px 60px;
+  position: relative;
+  z-index: 10;
+}
+.gemini-sparkle-center {
+  width: 52px;
+  height: 52px;
+  margin-bottom: 24px;
+  animation: floatSparkle 3s ease-in-out infinite;
+}
+@keyframes floatSparkle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.gemini-greeting {
+  font-family: var(--font-head);
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 32px;
+  text-align: center;
+  letter-spacing: -0.02em;
+  color: #F5F5F7;
+}
+.gemini-greeting span {
+  background: var(--grad-green);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* The Iconic Gemini Pill Search Box with Nexora dark glass */
+.gemini-input-pill-container {
+  width: min(720px, 100%);
+  position: relative;
+  margin-bottom: 16px;
+}
+.gemini-input-pill {
+  background: #14141E;
+  border-radius: 999px;
+  padding: 14px 20px 14px 22px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.45);
+  transition: border-color 0.2s, background 0.2s;
+}
+.gemini-input-pill:focus-within {
+  border-color: rgba(16, 185, 129, 0.45);
+  background: #181824;
+}
+.gemini-plus-btn {
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  font-size: 1.15rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+}
+.gemini-plus-btn:hover { color: var(--green); }
+.gemini-input-field {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+}
+.gemini-input-field::placeholder { color: #6E707A; }
+
+.gemini-mic-btn {
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  font-size: 1.05rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  transition: color 0.15s;
+}
+.gemini-mic-btn:hover { color: var(--accent); }
+.gemini-send-btn {
+  background: var(--grad-green);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.gemini-send-btn:hover { transform: scale(1.08); box-shadow: 0 6px 18px rgba(16, 185, 129, 0.6); }
+
+/* Mode Switchers: Chat / Task / Reflect */
+.mode-switch-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.mode-pill {
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.mode-pill.active {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--border);
+  color: #fff;
+  font-weight: 500;
+}
+
+/* Starter Prompts (Gemini Style) */
+.gemini-starter-prompts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(720px, 100%);
+}
+.starter-pill-btn {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  color: #C4C7C5;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+.starter-pill-btn:hover { background: rgba(255,255,255,0.05); color: #fff; border-color: rgba(34, 211, 238, 0.35); transform: translateX(3px); }
+.starter-pill-btn i { color: var(--accent); font-size: 0.95rem; width: 20px; text-align: center; }
+
+/* ============ ACTIVE CHAT STREAM ============ */
+.gemini-chat-stream {
+  flex: 1;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  z-index: 10;
+}
+.gemini-chat-stream.active { display: flex; }
+
+.chat-history-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 0 100px;
+}
+.chat-msg-row {
+  width: 100%;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: center;
+}
+.chat-msg-inner {
+  width: 100%;
+  max-width: 780px;
+  display: flex;
+  gap: 18px;
+}
+.msg-avatar-gemini {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.msg-avatar-user {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--grad);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.msg-text-content {
+  flex: 1;
+  font-size: 0.96rem;
+  line-height: 1.68;
+  color: #ECECF1;
+}
+.msg-text-content p { margin-bottom: 12px; }
+.msg-text-content ul, .msg-text-content ol { margin: 8px 0 14px 22px; }
+.msg-text-content li { margin-bottom: 6px; }
+.msg-text-content strong { color: #fff; font-weight: 600; }
+
+/* Memory Citation Box (Clean Google Style with Nexora Emerald) */
+.hindsight-proof-box {
+  margin-top: 16px;
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 12px;
+  padding: 14px 18px;
+}
+.proof-box-header {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--green);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.proof-item {
+  background: rgba(255, 255, 255, 0.025);
+  border-left: 3px solid var(--green);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  font-size: 0.82rem;
+}
+.proof-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-bottom: 3px;
+}
+
+/* Sticky Input Bar at Bottom during active chat */
+.sticky-bottom-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0 24px 20px;
+  display: flex;
+  justify-content: center;
+  background: linear-gradient(180deg, transparent 0%, var(--bg-main) 40%);
+}
+
+/* Modals */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.78);
+  backdrop-filter: blur(10px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-overlay.open { display: flex; }
+.modal-card {
+  width: min(480px, 90%);
+  background: #101018;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+}
+.form-input {
+  width: 100%;
+  background: #0A0A0F;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  outline: none;
+  margin-top: 6px;
+  margin-bottom: 14px;
+}
+.form-input:focus { border-color: var(--green); }
+
+/* Visible Ambient Cursor Glow Spotlight */
+.cursor-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.30) 0%, rgba(16, 185, 129, 0.18) 40%, transparent 70%);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 99999;
+  filter: blur(28px);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+</style>
+</head>
+<body>
+<div class="cursor-glow" id="cursor-glow"></div>
+
+<!-- GEMINI SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-top">
+    <a href="/" class="brand-gemini">
+      <span class="sparkle-icon">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4L12 0Z" fill="url(#gemini_grad)"/>
+          <defs>
+            <linearGradient id="gemini_grad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#10B981"/>
+              <stop offset="0.5" stop-color="#22D3EE"/>
+              <stop offset="1" stop-color="#6366F1"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </span>
+      <span>DealMind</span>
+    </a>
+    <div class="sidebar-icons">
+      <button class="sidebar-icon-btn" onclick="openSearch()" title="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
+      <button class="sidebar-icon-btn" onclick="toggleSidebar()" title="Collapse"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+
+  <button class="btn-new-chat" onclick="startFreshChat()">
+    <i class="fa-solid fa-pen-to-square"></i>
+    <span>New deal chat</span>
+  </button>
+
+  <div class="nav-group">
+    <a class="nav-item active" onclick="startFreshChat()"><i class="fa-solid fa-brain"></i> Deal Copilot</a>
+    <a class="nav-item" onclick="openPlaybookModal()"><i class="fa-solid fa-book-bookmark"></i> How to Use DealMind</a>
+    <a class="nav-item" onclick="openRetainModal()"><i class="fa-solid fa-file-pen"></i> Retain Notes</a>
+    <a class="nav-item" onclick="openReflectReport()"><i class="fa-solid fa-chart-line"></i> Reflect Insights</a>
+    <a class="nav-item" href="/" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> Marketing Site</a>
+  </div>
+
+  <div class="section-divider">
+    <span>ACTIVE PIPELINE DEALS</span>
+    <span id="deal-count-badge" style="font-family:var(--font-mono);color:var(--green)">4</span>
+  </div>
+
+  <div class="history-list" id="deals-sidebar-list">
+    <!-- Populated dynamically with active deals -->
+  </div>
+
+  <!-- Enterprise Status / User Footer -->
+  <div class="sidebar-user" id="sidebar-user-footer" style="padding:12px 16px;border-top:1px solid var(--border)">
+    <!-- Populated dynamically with Google User -->
+  </div>
+</aside>
+
+<!-- MAIN WORKSPACE STAGE -->
+<main class="main-stage">
+  <div class="ambient-glow" id="ambient-glow"></div>
+
+  <!-- Top Navigation Header -->
+  <header class="top-bar">
+    <div class="deal-selector-pill" id="top-deal-pill">
+      <span style="color:var(--text-muted)">Deal Context:</span>
+      <strong id="top-deal-title" style="color:#fff">Bespoke Workspace (No Active Account)</strong>
+      <span id="top-deal-arr" style="font-family:var(--font-mono);color:var(--green);margin-left:6px;display:none"></span>
+    </div>
+
+    <div class="top-actions">
+      <button class="pill-btn" onclick="openOnboardModal()">
+        <i class="fa-solid fa-plus" style="color:var(--green)"></i> Onboard Account
+      </button>
+      <button class="pill-btn" onclick="openPlaybookModal()">
+        <i class="fa-solid fa-circle-info" style="color:var(--accent)"></i> Guide
+      </button>
+      <button class="pill-btn" onclick="toggleMemoryEngine()" id="engine-toggle-btn">
+        <i class="fa-solid fa-circle-check" style="color:var(--green)"></i>
+        <span id="engine-status-text">Hindsight Memory Active</span>
+      </button>
+      <a href="/" class="pill-btn"><i class="fa-solid fa-house"></i> Home</a>
+    </div>
+  </header>
+
+  <!-- GEMINI HOME HERO VIEW (Icon + Greeting + Input Pill + Starters) -->
+  <section class="gemini-home" id="gemini-home-screen">
+    <!-- Center Sparkle Icon -->
+    <div class="gemini-sparkle-center">
+      <svg viewBox="0 0 24 24" fill="none" style="width:100%;height:100%">
+        <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4L12 0Z" fill="url(#center_sparkle)"/>
+        <defs>
+          <linearGradient id="center_sparkle" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#10B981"/>
+            <stop offset="0.5" stop-color="#22D3EE"/>
+            <stop offset="1" stop-color="#6366F1"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+
+    <!-- Clean Professional Greeting -->
+    <h1 class="gemini-greeting">
+      Where should we close deals today?
+    </h1>
+    <p style="font-size:0.92rem;color:var(--text-muted);margin-top:4px;margin-bottom:28px">
+      Bespoke autonomous deal cognition with persistent Vectorize Hindsight memory.
+    </p>
+
+    <!-- The Iconic Pill Input Bar (No model selector dropdown) -->
+    <div class="gemini-input-pill-container">
+      <div class="gemini-input-pill">
+        <button class="gemini-plus-btn" onclick="openRetainModal()" title="Retain Note"><i class="fa-solid fa-plus"></i></button>
+        <input type="text" id="home-chat-input" class="gemini-input-field" placeholder="Paste meeting notes or ask strategy (auto-onboards accounts)..." onkeydown="handleInputKey(event)">
+        <button class="gemini-send-btn" onclick="submitHomeQuery()" title="Send"><i class="fa-solid fa-arrow-up"></i></button>
+      </div>
+    </div>
+
+    <!-- Mode Selector Pills: Chat / Reflect -->
+    <div class="mode-switch-row">
+      <button class="mode-pill active" id="mode-deal" onclick="setMode('deal')">Deal Copilot</button>
+      <button class="mode-pill" id="mode-reflect" onclick="setMode('reflect')">Reflect Intelligence</button>
+    </div>
+
+    <!-- Starter Prompts (Dynamic & Tailored to Business Needs) -->
+    <div class="gemini-starter-prompts" id="starter-prompts-container">
+      <button class="starter-pill-btn" onclick="handleStarterAction('brief')">
+        <i class="fa-regular fa-file-lines"></i>
+        <span id="starter-txt-brief">Generate a pre-call strategic briefing synthesizing all stakeholder objections</span>
+      </button>
+
+      <button class="starter-pill-btn" onclick="handleStarterAction('pricing')">
+        <i class="fa-solid fa-coins"></i>
+        <span id="starter-txt-pricing">Calculate optimal non-blocking ARR quote under verified departmental budget caps</span>
+      </button>
+
+      <button class="starter-pill-btn" onclick="handleStarterAction('risks')">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span id="starter-txt-risks">Identify active compliance gates, fatal blockers, and competitor displacement risks</span>
+      </button>
+
+      <button class="starter-pill-btn" onclick="handleStarterAction('email')">
+        <i class="fa-regular fa-paper-plane"></i>
+        <span id="starter-txt-email">Draft an executive proposal email addressing technical constraints with grounded citations</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- GEMINI ACTIVE CHAT STREAM (Shown when chatting) -->
+  <section class="gemini-chat-stream" id="gemini-active-chat">
+    <div class="chat-history-container" id="stream-messages-container">
+      <!-- Injected dynamically -->
+    </div>
+
+    <!-- Sticky Bottom Input Pill during Active Chat (Clean) -->
+    <div class="sticky-bottom-bar">
+      <div class="gemini-input-pill-container" style="margin-bottom:0">
+        <div class="gemini-input-pill">
+          <button class="gemini-plus-btn" onclick="openRetainModal()" title="Retain Note"><i class="fa-solid fa-plus"></i></button>
+          <input type="text" id="stream-chat-input" class="gemini-input-field" placeholder="Ask a follow-up or command DealMind..." onkeydown="handleStreamKey(event)">
+          <button class="gemini-send-btn" onclick="submitStreamQuery()" title="Send"><i class="fa-solid fa-arrow-up"></i></button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- GOOGLE SIGN-IN MODAL (Full Auth Guard) -->
+<div class="modal-overlay" id="google-auth-modal" style="display:flex;z-index:999999;background:rgba(10,10,15,0.85);backdrop-filter:blur(16px)">
+  <div class="modal-card" style="width:min(440px,92%);background:#101018;border:1px solid rgba(255,255,255,0.12);box-shadow:0 25px 60px rgba(0,0,0,0.7);padding:36px 30px;text-align:center">
+    <!-- Google 4-Color Logo SVG -->
+    <div style="width:48px;height:48px;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:12px;padding:8px">
+      <svg viewBox="0 0 24 24" style="width:100%;height:100%">
+        <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/>
+        <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/>
+        <path fill="#FBBC05" d="M5.6 14.8c-.3-.8-.4-1.7-.4-2.8s.2-2 .4-2.8L1.9 6.3C.7 8.7 0 10.3 0 12s.7 3.3 1.9 5.7l3.7-2.9z"/>
+        <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2-6.4-4.8L1.9 16.4C3.7 20.4 7.5 23 12 23z"/>
+      </svg>
+    </div>
+
+    <h2 style="font-family:var(--font-head);font-size:1.35rem;font-weight:700;color:#fff;margin-bottom:6px">Sign in with Google</h2>
+    <p style="font-size:0.84rem;color:var(--text-sub);margin-bottom:24px">Continue to DealMind Enterprise Workspace</p>
+
+    <form onsubmit="handleGoogleLogin(event)">
+      <div style="text-align:left;margin-bottom:14px">
+        <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em">Google Email ID</label>
+        <input type="email" id="auth-email" class="form-input" placeholder="e.g. name@gmail.com or @company.com" required style="margin-top:6px;margin-bottom:0">
+      </div>
+
+      <div style="text-align:left;margin-bottom:20px">
+        <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em">Full Name</label>
+        <input type="text" id="auth-name" class="form-input" placeholder="e.g. Alex Chen" required style="margin-top:6px;margin-bottom:0">
+      </div>
+
+      <button type="submit" class="pill-btn" style="width:100%;background:#fff;color:#131314;font-weight:600;justify-content:center;padding:12px;font-size:0.92rem;margin-bottom:6px">
+        <svg viewBox="0 0 24 24" style="width:18px;height:18px">
+          <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/>
+          <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/>
+          <path fill="#FBBC05" d="M5.6 14.8c-.3-.8-.4-1.7-.4-2.8s.2-2 .4-2.8L1.9 6.3C.7 8.7 0 10.3 0 12s.7 3.3 1.9 5.7l3.7-2.9z"/>
+          <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2-6.4-4.8L1.9 16.4C3.7 20.4 7.5 23 12 23z"/>
+        </svg>
+        Continue with Google
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- ONBOARD BESPOKE DEAL MODAL (Rolls-Royce Level Tailoring) -->
+<div class="modal-overlay" id="onboard-deal-modal">
+  <div class="modal-card" style="width:min(560px,94%);padding:28px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+      <div>
+        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--green);font-weight:700;margin-bottom:4px">BESPOKE CLIENT ONBOARDING</div>
+        <h3 style="font-family:var(--font-head);font-size:1.25rem;font-weight:700;color:#fff">Onboard Enterprise Deal Account</h3>
+      </div>
+      <button onclick="closeOnboardModal()" class="pill-btn" style="padding:6px 12px;font-size:0.75rem">Close ✕</button>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text-sub);margin-bottom:18px">Tailor the account's persistent memory bank according to your exact business category and stakeholder constraints.</p>
+
+    <form onsubmit="handleOnboardSubmit(event)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Client Company Name</label>
+          <input type="text" id="ob-name" class="form-input" placeholder="e.g. Acme Global / Stripe" required style="margin-top:4px;margin-bottom:0">
+        </div>
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Business Vertical / Category</label>
+          <select id="ob-vertical" class="form-input" style="margin-top:4px;margin-bottom:0">
+            <option value="Enterprise B2B SaaS">Enterprise B2B SaaS</option>
+            <option value="Healthcare & Life Sciences (HIPAA)">Healthcare & Life Sciences (HIPAA)</option>
+            <option value="FinTech & Banking (SEBI / RBI)">FinTech & Banking (SEBI / RBI)</option>
+            <option value="Global Supply Chain & Logistics">Global Supply Chain & Logistics</option>
+            <option value="Aerospace & Manufacturing">Aerospace & Manufacturing</option>
+            <option value="Custom Enterprise Vertical">Custom Enterprise Vertical</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Target Contract Value ($ ARR)</label>
+          <input type="number" id="ob-arr" class="form-input" placeholder="e.g. 65000" required style="margin-top:4px;margin-bottom:0">
+        </div>
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Current Pipeline Stage</label>
+          <select id="ob-stage" class="form-input" style="margin-top:4px;margin-bottom:0">
+            <option value="Discovery">Discovery & Scoping</option>
+            <option value="Proposal Review">Technical Proposal Review</option>
+            <option value="Negotiation">Final Commercial Negotiation</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Key Decision Makers & Roles</label>
+        <input type="text" id="ob-stakeholders" class="form-input" placeholder="e.g. David Ross (CTO), Elena Ramos (Head of Procurement)" required style="margin-top:4px;margin-bottom:0">
+      </div>
+
+      <div style="margin-bottom:20px">
+        <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Primary Technical & Compliance Gates</label>
+        <input type="text" id="ob-gates" class="form-input" placeholder="e.g. Sub-12ms API Latency SLA, On-Prem Key Management, SOC2 Type II" required style="margin-top:4px;margin-bottom:0">
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px">
+        <button type="button" class="pill-btn" onclick="closeOnboardModal()">Cancel</button>
+        <button type="submit" class="pill-btn" style="background:var(--grad-green);color:#fff;font-weight:600">
+          <i class="fa-solid fa-rocket"></i> Launch Dedicated Account Workspace
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- RETAIN MODAL -->
+<div class="modal-overlay" id="retain-modal">
+  <div class="modal-card">
+    <h3 style="font-size:1.15rem;margin-bottom:8px;display:flex;align-items:center;gap:8px">
+      <i class="fa-solid fa-file-pen" style="color:var(--green)"></i> Retain Interaction Note
+    </h3>
+    <p style="font-size:0.84rem;color:var(--text-sub);margin-bottom:14px">Directly indexed into Vectorize Hindsight Cloud memory bank.</p>
+    <form onsubmit="handleRetainSubmit(event)">
+      <label style="font-size:0.78rem;color:var(--text-sub)">Stakeholder Name</label>
+      <input type="text" id="rm-stakeholder" class="form-input" placeholder="e.g. Kiran Nair (CTO)" required>
+      <label style="font-size:0.78rem;color:var(--text-sub)">Category</label>
+      <select id="rm-category" class="form-input">
+        <option value="Compliance">Compliance & Security</option>
+        <option value="Pricing">Budget & Commercials</option>
+        <option value="Architecture">Infrastructure & Latency</option>
+        <option value="Objection">Objection & Competitor</option>
+      </select>
+      <label style="font-size:0.78rem;color:var(--text-sub)">Notes / Verbatim Statement</label>
+      <textarea id="rm-content" class="form-input" rows="3" placeholder="Enter verbatim statements, budget limits, or architectural requirements..." required></textarea>
+      <div style="display:flex;justify-content:flex-end;gap:10px">
+        <button type="button" class="pill-btn" onclick="closeRetainModal()">Cancel</button>
+        <button type="submit" class="pill-btn" style="background:#10B981;color:#051a14;font-weight:600">Save to Hindsight</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ONBOARD BESPOKE DEAL MODAL (Rolls-Royce Level Tailoring) -->
+<div class="modal-overlay" id="onboard-deal-modal">
+  <div class="modal-card" style="width:min(560px,94%);padding:28px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+      <div>
+        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--green);font-weight:700;margin-bottom:4px">BESPOKE CLIENT ONBOARDING</div>
+        <h3 style="font-family:var(--font-head);font-size:1.25rem;font-weight:700;color:#fff">Onboard Enterprise Deal Account</h3>
+      </div>
+      <button onclick="closeOnboardModal()" class="pill-btn" style="padding:6px 12px;font-size:0.75rem">Close ✕</button>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text-sub);margin-bottom:18px">Tailor the account's persistent memory bank according to your exact business category and stakeholder constraints.</p>
+
+    <form onsubmit="handleOnboardSubmit(event)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Client Company Name</label>
+          <input type="text" id="ob-name" class="form-input" placeholder="e.g. Acme Global / Stripe" required style="margin-top:4px;margin-bottom:0">
+        </div>
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Business Vertical / Category</label>
+          <select id="ob-vertical" class="form-input" style="margin-top:4px;margin-bottom:0">
+            <option value="Enterprise B2B SaaS">Enterprise B2B SaaS</option>
+            <option value="Healthcare & Life Sciences (HIPAA)">Healthcare & Life Sciences (HIPAA)</option>
+            <option value="FinTech & Banking (SEBI / RBI)">FinTech & Banking (SEBI / RBI)</option>
+            <option value="Global Supply Chain & Logistics">Global Supply Chain & Logistics</option>
+            <option value="Aerospace & Manufacturing">Aerospace & Manufacturing</option>
+            <option value="Custom Enterprise Vertical">Custom Enterprise Vertical</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Target Contract Value ($ ARR)</label>
+          <input type="number" id="ob-arr" class="form-input" placeholder="e.g. 65000" required style="margin-top:4px;margin-bottom:0">
+        </div>
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Current Pipeline Stage</label>
+          <select id="ob-stage" class="form-input" style="margin-top:4px;margin-bottom:0">
+            <option value="Discovery">Discovery & Scoping</option>
+            <option value="Proposal Review">Technical Proposal Review</option>
+            <option value="Negotiation">Final Commercial Negotiation</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Key Decision Makers & Roles</label>
+        <input type="text" id="ob-stakeholders" class="form-input" placeholder="e.g. David Ross (CTO), Elena Ramos (Head of Procurement)" required style="margin-top:4px;margin-bottom:0">
+      </div>
+
+      <div style="margin-bottom:20px">
+        <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Primary Technical & Compliance Gates</label>
+        <input type="text" id="ob-gates" class="form-input" placeholder="e.g. Sub-12ms API Latency SLA, On-Prem Key Management, SOC2 Type II" required style="margin-top:4px;margin-bottom:0">
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px">
+        <button type="button" class="pill-btn" onclick="closeOnboardModal()">Cancel</button>
+        <button type="submit" class="pill-btn" style="background:var(--grad-green);color:#fff;font-weight:600">
+          <i class="fa-solid fa-rocket"></i> Launch Dedicated Account Workspace
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal-card">
+    <h3 style="font-size:1.15rem;margin-bottom:8px"><i class="fa-solid fa-gear"></i> Hindsight Cloud Settings</h3>
+    <p style="font-size:0.84rem;color:var(--text-sub);margin-bottom:14px">Connected with your official Vectorize Hindsight Cloud API key.</p>
+    <form onsubmit="handleSaveSettings(event)">
+      <label style="font-size:0.78rem;color:var(--text-sub)">Hindsight API Key</label>
+      <input type="password" id="cfg-key" class="form-input" value="hsk_329908dc7a8f296f2771ff834b9c1864_f8a871b810eca7d4" style="font-family:var(--font-mono)">
+      <label style="font-size:0.78rem;color:var(--text-sub)">Base URL</label>
+      <input type="text" id="cfg-url" class="form-input" value="https://api.hindsight.vectorize.io" style="font-family:var(--font-mono)">
+      <div style="display:flex;justify-content:flex-end;gap:10px">
+        <button type="button" class="pill-btn" onclick="closeSettings()">Cancel</button>
+        <button type="submit" class="pill-btn" style="background:#10B981;color:#051a14;font-weight:600">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ONBOARD BESPOKE DEAL MODAL (Rolls-Royce Level Tailoring) -->
+<div class="modal-overlay" id="onboard-deal-modal">
+  <div class="modal-card" style="width:min(560px,94%);padding:28px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+      <div>
+        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--green);font-weight:700;margin-bottom:4px">BESPOKE CLIENT ONBOARDING</div>
+        <h3 style="font-family:var(--font-head);font-size:1.25rem;font-weight:700;color:#fff">Onboard Enterprise Deal Account</h3>
+      </div>
+      <button onclick="closeOnboardModal()" class="pill-btn" style="padding:6px 12px;font-size:0.75rem">Close ✕</button>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text-sub);margin-bottom:18px">Tailor the account's persistent memory bank according to your exact business category and stakeholder constraints.</p>
+
+    <form onsubmit="handleOnboardSubmit(event)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Client Company Name</label>
+          <input type="text" id="ob-name" class="form-input" placeholder="e.g. Acme Global / Stripe" required style="margin-top:4px;margin-bottom:0">
+        </div>
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Business Vertical / Category</label>
+          <select id="ob-vertical" class="form-input" style="margin-top:4px;margin-bottom:0">
+            <option value="Enterprise B2B SaaS">Enterprise B2B SaaS</option>
+            <option value="Healthcare & Life Sciences (HIPAA)">Healthcare & Life Sciences (HIPAA)</option>
+            <option value="FinTech & Banking (SEBI / RBI)">FinTech & Banking (SEBI / RBI)</option>
+            <option value="Global Supply Chain & Logistics">Global Supply Chain & Logistics</option>
+            <option value="Aerospace & Manufacturing">Aerospace & Manufacturing</option>
+            <option value="Custom Enterprise Vertical">Custom Enterprise Vertical</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Target Contract Value ($ ARR)</label>
+          <input type="number" id="ob-arr" class="form-input" placeholder="e.g. 65000" required style="margin-top:4px;margin-bottom:0">
+        </div>
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Current Pipeline Stage</label>
+          <select id="ob-stage" class="form-input" style="margin-top:4px;margin-bottom:0">
+            <option value="Discovery">Discovery & Scoping</option>
+            <option value="Proposal Review">Technical Proposal Review</option>
+            <option value="Negotiation">Final Commercial Negotiation</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Key Decision Makers & Roles</label>
+        <input type="text" id="ob-stakeholders" class="form-input" placeholder="e.g. David Ross (CTO), Elena Ramos (Head of Procurement)" required style="margin-top:4px;margin-bottom:0">
+      </div>
+
+      <div style="margin-bottom:20px">
+        <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Primary Technical & Compliance Gates</label>
+        <input type="text" id="ob-gates" class="form-input" placeholder="e.g. Sub-12ms API Latency SLA, On-Prem Key Management, SOC2 Type II" required style="margin-top:4px;margin-bottom:0">
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px">
+        <button type="button" class="pill-btn" onclick="closeOnboardModal()">Cancel</button>
+        <button type="submit" class="pill-btn" style="background:var(--grad-green);color:#fff;font-weight:600">
+          <i class="fa-solid fa-rocket"></i> Launch Dedicated Account Workspace
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- PLAYBOOK & VALUE GUIDE MODAL -->
+<div class="modal-overlay" id="playbook-modal">
+  <div class="modal-card" style="width:min(620px,94%);max-height:88vh;overflow-y:auto;padding:28px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px">
+      <div>
+        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--green);font-weight:700;margin-bottom:4px">OPERATIONAL GUIDE</div>
+        <h3 style="font-family:var(--font-head);font-size:1.3rem;font-weight:700;color:#fff">How to Use DealMind Effectively</h3>
+      </div>
+      <button onclick="closePlaybookModal()" class="pill-btn" style="padding:6px 12px;font-size:0.75rem">Close ✕</button>
+    </div>
+
+    <!-- Importance & Strategic Value -->
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:10px;padding:14px 16px;margin-bottom:20px">
+      <div style="font-size:0.82rem;font-weight:600;color:#fff;margin-bottom:4px">Why DealMind is Mission-Critical for Enterprise B2B</div>
+      <p style="font-size:0.82rem;color:var(--text-sub);line-height:1.6">Enterprise sales cycles span 3 to 9 months across 6+ executive stakeholders (CTO, CFO, Procurement). Standard LLMs suffer from complete session amnesia—they forget past pricing caps, previous objections, and compliance redlines. DealMind provides an autonomous intelligence layer backed by Vectorize Hindsight persistent episodic memory, eliminating fatal pricing mistakes and accelerating deal velocity by 45%.</p>
+    </div>
+
+    <!-- 4-Step Professional Workflow -->
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:22px">
+      <div style="display:flex;gap:14px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:14px">
+        <div style="width:28px;height:28px;border-radius:50%;background:rgba(16,185,129,0.15);color:var(--green);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.82rem;flex-shrink:0">1</div>
+        <div>
+          <strong style="font-size:0.86rem;color:#fff;display:block;margin-bottom:2px">Autonomous Account Onboarding</strong>
+          <span style="font-size:0.8rem;color:var(--text-muted);line-height:1.5">Simply paste meeting notes or type in chat—DealMind automatically detects client names, extracts budget caps, initializes a persistent memory bank, and maps the account into your sidebar pipeline.</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:14px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:14px">
+        <div style="width:28px;height:28px;border-radius:50%;background:rgba(34,211,238,0.15);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.82rem;flex-shrink:0">2</div>
+        <div>
+          <strong style="font-size:0.86rem;color:#fff;display:block;margin-bottom:2px">Retain Meeting Notes & Constraints</strong>
+          <span style="font-size:0.8rem;color:var(--text-muted);line-height:1.5">Click the <strong style="color:var(--green)">+</strong> button after calls to log verbatim stakeholder statements (e.g. "CFO capped spend at $44.5k"). Notes are instantly synchronized and indexed in Vectorize Hindsight Cloud.</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:14px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:14px">
+        <div style="width:28px;height:28px;border-radius:50%;background:rgba(99,102,241,0.15);color:#818cf8;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.82rem;flex-shrink:0">3</div>
+        <div>
+          <strong style="font-size:0.86rem;color:#fff;display:block;margin-bottom:2px">Execute Strategic Playbooks</strong>
+          <span style="font-size:0.8rem;color:var(--text-muted);line-height:1.5">Click any starter card or type a query: <em>Pre-Call Brief</em>, <em>Pricing Negotiation Play</em>, <em>Deal Risks</em>, or <em>Draft Follow-up Email</em>. DealMind executes hybrid BM25 + dense semantic reranking across past interactions.</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:14px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:14px">
+        <div style="width:28px;height:28px;border-radius:50%;background:rgba(245,158,11,0.15);color:#fbbf24;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.82rem;flex-shrink:0">4</div>
+        <div>
+          <strong style="font-size:0.86rem;color:#fff;display:block;margin-bottom:2px">Verify Grounded Memory Citations</strong>
+          <span style="font-size:0.8rem;color:var(--text-muted);line-height:1.5">Every generated response displays green verifiable Hindsight citation badges (<code style="font-family:var(--font-mono);color:#93c5fd">[mem-101]</code>), showing the exact stakeholder, date, and quote that justified the advice. Zero hallucinations.</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end">
+      <button type="button" class="pill-btn" style="background:var(--grad-green);color:#fff;font-weight:600" onclick="closePlaybookModal()">Got it, Start Executing</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let deals = [];
+let activeDealId = null;
+let useMemory = true;
+let currentUser = null;
+
+async function init() {
+  checkAuth();
+  await fetchDeals();
+}
+
+function checkAuth() {
+  const saved = localStorage.getItem('dealmind_google_user');
+  if (saved) {
+    try {
+      currentUser = JSON.parse(saved);
+      applyUserSession(currentUser);
+      document.getElementById('google-auth-modal').style.display = 'none';
+    } catch(e) {
+      document.getElementById('google-auth-modal').style.display = 'flex';
+    }
+  } else {
+    document.getElementById('google-auth-modal').style.display = 'flex';
+  }
+}
+
+function handleGoogleLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('auth-email').value.trim();
+  const name = document.getElementById('auth-name').value.trim() || email.split('@')[0];
+  currentUser = { name, email };
+  localStorage.setItem('dealmind_google_user', JSON.stringify(currentUser));
+  applyUserSession(currentUser);
+  document.getElementById('google-auth-modal').style.display = 'none';
+}
+
+function applyUserSession(user) {
+  // Update sidebar footer with clean enterprise status
+  const footer = document.getElementById('sidebar-user-footer');
+  if (footer) {
+    footer.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="width:8px;height:8px;border-radius:50%;background:#10B981;box-shadow:0 0 10px #10B981;display:inline-block"></span>
+          <span style="font-size:0.76rem;color:var(--text-muted);font-weight:500;letter-spacing:0.02em">Cognitive Engine Active</span>
+        </div>
+        <button onclick="handleSignOut()" title="Sign Out (${escapeHtml(user.email || user.name)})" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.82rem;padding:4px" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='var(--text-muted)'">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        </button>
+      </div>
+    `;
+  }
+
+  // Ensure new user starts completely fresh (nothing pre-given)
+  startFreshChat();
+}
+
+function handleSignOut() {
+  localStorage.removeItem('dealmind_google_user');
+  location.reload();
+}
+
+async function fetchDeals() {
+  try {
+    const res = await fetch('/api/deals');
+    const data = await res.json();
+    deals = data.deals || [];
+    document.getElementById('deal-count-badge').textContent = deals.length;
+    renderSidebarDeals();
+  } catch (err) {
+    console.error('Failed to load deals:', err);
+  }
+}
+
+function renderSidebarDeals() {
+  const container = document.getElementById('deals-sidebar-list');
+  if (deals.length === 0) {
+    container.innerHTML = `
+      <div style="padding:18px 12px;background:rgba(255,255,255,0.02);border:1px dashed var(--border);border-radius:12px;text-align:center;margin-top:10px">
+        <div style="width:32px;height:32px;border-radius:50%;background:rgba(16,185,129,0.12);display:inline-flex;align-items:center;justify-content:center;margin-bottom:8px">
+          <i class="fa-solid fa-wand-magic-sparkles" style="color:var(--green);font-size:0.85rem"></i>
+        </div>
+        <div style="font-size:0.8rem;font-weight:600;color:#fff;margin-bottom:4px">No Accounts Active</div>
+        <p style="font-size:0.72rem;color:var(--text-muted);line-height:1.45">Type or paste call notes in chat. DealMind automatically detects and onboards accounts into this pipeline.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = deals.map(d => `
+    <div class="history-item ${d.id === activeDealId ? 'active' : ''}" onclick="selectDeal('${d.id}')">
+      <span>${escapeHtml(d.name)}</span>
+      <span class="history-badge">$${Math.round(d.arr/1000)}k</span>
+    </div>
+  `).join('');
+}
+
+function selectDeal(id) {
+  activeDealId = id;
+  renderSidebarDeals();
+  const d = deals.find(x => x.id === id);
+  if (d) {
+    document.getElementById('top-deal-title').textContent = d.name;
+    const arrEl = document.getElementById('top-deal-arr');
+    arrEl.style.display = 'inline';
+    arrEl.textContent = `$${d.arr.toLocaleString()} ARR`;
+  } else {
+    document.getElementById('top-deal-title').textContent = 'Bespoke Workspace (No Active Account)';
+    const arrEl = document.getElementById('top-deal-arr');
+    arrEl.style.display = 'none';
+  }
+}
+
+function openOnboardModal() { document.getElementById('onboard-deal-modal').classList.add('open'); }
+function closeOnboardModal() { document.getElementById('onboard-deal-modal').classList.remove('open'); }
+
+async function handleOnboardSubmit(e) {
+  e.preventDefault();
+  const name = document.getElementById('ob-name').value.trim();
+  const vertical = document.getElementById('ob-vertical').value;
+  const arr = parseFloat(document.getElementById('ob-arr').value);
+  const stage = document.getElementById('ob-stage').value;
+  const stakeholders = document.getElementById('ob-stakeholders').value.split(',').map(s => s.trim());
+  const gates = document.getElementById('ob-gates').value.trim();
+
+  try {
+    const res = await fetch('/api/deals', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: `${name} (${vertical})`,
+        arr: arr,
+        stage: stage,
+        stakeholders: stakeholders
+      })
+    });
+    const data = await res.json();
+    const newDeal = data.deal;
+
+    // Retain initial compliance & architecture gates to Hindsight Cloud
+    if (gates) {
+      await fetch('/api/memories/retain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          deal_id: newDeal.id,
+          stakeholder: stakeholders[0] || 'Leadership',
+          category: 'Compliance & Architecture',
+          content: `Initial client gating constraints: ${gates}`
+        })
+      });
+    }
+
+    closeOnboardModal();
+    await fetchDeals();
+    selectDeal(newDeal.id);
+  } catch(err) {
+    alert('Failed to onboard account: ' + err.message);
+  }
+}
+
+function handleStarterAction(type) {
+  const d = deals.find(x => x.id === activeDealId);
+  const accountName = d ? d.name : null;
+
+  if (type === 'brief') {
+    if (accountName) {
+      runStarter(`Generate a pre-call strategic executive briefing for our upcoming call with ${accountName}. Synthesize all active stakeholder objections, compliance constraints, and budget limits.`);
+    } else {
+      runStarter(`Generate a pre-call strategic executive briefing for an enterprise deal. Notes: Meeting with Acme Corp, CTO David wants SOC2 and budget is $75k ARR. Synthesize our strategy.`);
+    }
+  } else if (type === 'pricing') {
+    if (accountName) {
+      runStarter(`What is the optimal pricing and contract quote strategy for ${accountName} under known stakeholder budget limits?`);
+    } else {
+      runStarter(`Calculate the optimal ARR pricing and packaging strategy for an enterprise deal with an estimated $60k departmental budget limit.`);
+    }
+  } else if (type === 'risks') {
+    if (accountName) {
+      runStarter(`What are the active deal risks, objections, and technical blockers recorded for ${accountName}?`);
+    } else {
+      runStarter(`What are the fatal deal blockers, compliance hurdles, and competitor displacement risks we need to guard against in enterprise sales cycles?`);
+    }
+  } else if (type === 'email') {
+    if (accountName) {
+      runStarter(`Draft a tailored executive follow-up email for ${accountName} addressing all known stakeholder constraints with grounded citations.`);
+    } else {
+      runStarter(`Draft an executive follow-up email for an enterprise prospect addressing custom VPC deployment, direct-approval threshold, and implementation timeline.`);
+    }
+  }
+}
+
+function toggleMemoryEngine() {
+  useMemory = !useMemory;
+  const btn = document.getElementById('engine-toggle-btn');
+  const txt = document.getElementById('engine-status-text');
+  if (useMemory) {
+    btn.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--green)"></i> <span id="engine-status-text">Hindsight Memory Active</span>';
+  } else {
+    btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444"></i> <span id="engine-status-text" style="color:#ef4444">Stateless (Memory Disabled)</span>';
+  }
+}
+
+function startFreshChat() {
+  document.getElementById('gemini-home-screen').style.display = 'flex';
+  document.getElementById('gemini-active-chat').classList.remove('active');
+  document.getElementById('ambient-glow').style.opacity = '1';
+  document.getElementById('stream-messages-container').innerHTML = '';
+}
+
+function runStarter(promptText) {
+  switchToChatStream();
+  executeQuery(promptText);
+}
+
+function submitHomeQuery() {
+  const input = document.getElementById('home-chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  switchToChatStream();
+  executeQuery(text);
+}
+
+function submitStreamQuery() {
+  const input = document.getElementById('stream-chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  executeQuery(text);
+}
+
+function handleInputKey(e) {
+  if (e.key === 'Enter') submitHomeQuery();
+}
+
+function handleStreamKey(e) {
+  if (e.key === 'Enter') submitStreamQuery();
+}
+
+function switchToChatStream() {
+  document.getElementById('gemini-home-screen').style.display = 'none';
+  document.getElementById('gemini-active-chat').classList.add('active');
+  document.getElementById('ambient-glow').style.opacity = '0.35';
+}
+
+async function executeQuery(text) {
+  appendUserMessage(text);
+  const thinkingId = appendThinkingState();
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        deal_id: activeDealId,
+        prompt: text,
+        use_memory: useMemory
+      })
+    });
+    const data = await res.json();
+    removeThinkingState(thinkingId);
+    
+    // Automatic Account Onboarding Hook
+    if (data.new_deal) {
+      deals.unshift(data.new_deal);
+      document.getElementById('deal-count-badge').textContent = deals.length;
+      selectDeal(data.new_deal.id);
+    }
+    
+    appendAssistantResponse(data);
+  } catch (err) {
+    removeThinkingState(thinkingId);
+    appendAssistantResponse({
+      reply: "Failed to connect to DealMind intelligence engine: " + err.message,
+      recalled_memories: []
+    });
+  }
+}
+
+function appendUserMessage(text) {
+  const container = document.getElementById('stream-messages-container');
+  const row = document.createElement('div');
+  row.className = 'chat-msg-row';
+  row.innerHTML = `
+    <div class="chat-msg-inner">
+      <div class="msg-avatar-user"><i class="fa-solid fa-user" style="font-size:0.75rem"></i></div>
+      <div class="msg-text-content">
+        <p>${escapeHtml(text)}</p>
+      </div>
+    </div>
+  `;
+  container.appendChild(row);
+  scrollToEnd();
+}
+
+function appendThinkingState() {
+  const container = document.getElementById('stream-messages-container');
+  const id = 'thinking-' + Date.now();
+  const row = document.createElement('div');
+  row.id = id;
+  row.className = 'chat-msg-row';
+  row.innerHTML = `
+    <div class="chat-msg-inner">
+      <div class="msg-avatar-gemini">
+        <svg viewBox="0 0 24 24" fill="none" style="width:22px;height:22px">
+          <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4L12 0Z" fill="url(#think_grad)"/>
+          <defs>
+            <linearGradient id="think_grad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#4285F4"/>
+              <stop offset="1" stop-color="#10B981"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="msg-text-content" style="color:var(--text-muted);font-style:italic">
+        <i class="fa-solid fa-spinner fa-spin"></i> Querying Hindsight memory bank & ranking multi-stakeholder facts...
+      </div>
+    </div>
+  `;
+  container.appendChild(row);
+  scrollToEnd();
+  return id;
+}
+
+function removeThinkingState(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+function appendAssistantResponse(data) {
+  const container = document.getElementById('stream-messages-container');
+  const row = document.createElement('div');
+  row.className = 'chat-msg-row';
+
+  let citationsHtml = '';
+  if (data.recalled_memories && data.recalled_memories.length > 0) {
+    citationsHtml = `
+      <div class="hindsight-proof-box">
+        <div class="proof-box-header">
+          <i class="fa-solid fa-circle-check"></i> Grounded by ${data.recalled_memories.length} Hindsight Episodic Memory Units
+        </div>
+        ${data.recalled_memories.map(m => `
+          <div class="proof-item">
+            <div class="proof-meta">
+              <strong style="color:#93c5fd;font-family:var(--font-mono)">[${m.id}] ${m.category}</strong>
+              <span>${m.stakeholder} • ${new Date(m.timestamp).toLocaleDateString()}</span>
+            </div>
+            <div style="color:#D1D5DB">"${escapeHtml(m.content)}"</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } else if (!useMemory) {
+    citationsHtml = `
+      <div style="margin-top:14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px 14px;font-size:0.8rem;color:#f87171">
+        <i class="fa-solid fa-triangle-exclamation"></i> <strong>Stateless Execution:</strong> Memory disabled. Response generated without historical context or stakeholder constraints.
+      </div>
+    `;
+  }
+
+  row.innerHTML = `
+    <div class="chat-msg-inner">
+      <div class="msg-avatar-gemini">
+        <svg viewBox="0 0 24 24" fill="none" style="width:24px;height:24px">
+          <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4L12 0Z" fill="url(#gemini_grad)"/>
+        </svg>
+      </div>
+      <div class="msg-text-content">
+        ${marked.parse(data.reply || '')}
+        ${citationsHtml}
+      </div>
+    </div>
+  `;
+  container.appendChild(row);
+  scrollToEnd();
+}
+
+function scrollToEnd() {
+  const container = document.getElementById('stream-messages-container');
+  container.scrollTop = container.scrollHeight;
+}
+
+/* MODALS */
+function openPlaybookModal() { document.getElementById('playbook-modal').classList.add('open'); }
+function closePlaybookModal() { document.getElementById('playbook-modal').classList.remove('open'); }
+function openRetainModal() { document.getElementById('retain-modal').classList.add('open'); }
+function closeRetainModal() { document.getElementById('retain-modal').classList.remove('open'); }
+function openSettings() { document.getElementById('settings-modal').classList.add('open'); }
+function closeSettings() { document.getElementById('settings-modal').classList.remove('open'); }
+
+async function handleRetainSubmit(e) {
+  e.preventDefault();
+  const res = await fetch('/api/memories/retain', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      deal_id: activeDealId,
+      stakeholder: document.getElementById('rm-stakeholder').value.trim(),
+      category: document.getElementById('rm-category').value,
+      content: document.getElementById('rm-content').value.trim()
+    })
+  });
+  const data = await res.json();
+  closeRetainModal();
+  alert('Memory retained to Hindsight Cloud! ID: ' + data.memory.id);
+  document.getElementById('rm-content').value = '';
+}
+
+async function handleSaveSettings(e) {
+  e.preventDefault();
+  await fetch('/api/config', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      api_key: document.getElementById('cfg-key').value.trim(),
+      base_url: document.getElementById('cfg-url').value.trim()
+    })
+  });
+  closeSettings();
+  alert('Hindsight settings updated.');
+}
+
+async function openReflectReport() {
+  switchToChatStream();
+  appendUserMessage("Synthesize cross-deal cognitive patterns across all enterprise deals");
+  const thinkingId = appendThinkingState();
+  const res = await fetch('/api/reflect');
+  const data = await res.json();
+  removeThinkingState(thinkingId);
+  appendAssistantResponse({
+    reply: data.reflection || data.summary,
+    recalled_memories: []
+  });
+}
+
+function escapeHtml(s) {
+  return (s || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+// Visible Ambient Cursor Glow Tracker
+const cursorGlow = document.getElementById('cursor-glow');
+if (cursorGlow) {
+  window.addEventListener('mousemove', (e) => {
+    cursorGlow.style.opacity = '1';
+    cursorGlow.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+  }, { passive: true });
+  document.addEventListener('mouseleave', () => {
+    cursorGlow.style.opacity = '0';
+  });
+}
+
+window.onload = init;
+</script>
+</body>
+</html>

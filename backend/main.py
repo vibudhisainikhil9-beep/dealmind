@@ -106,10 +106,12 @@ class ConfigRequest(BaseModel):
 # API ENDPOINTS
 
 # 1. Pipeline Deals
+@app.get("/deals")
 @app.get("/api/deals")
 def get_deals():
     return {"deals": deals_db}
 
+@app.post("/deals")
 @app.post("/api/deals")
 def create_deal(req: CreateDealRequest):
     new_deal = {
@@ -126,6 +128,7 @@ def create_deal(req: CreateDealRequest):
     return {"status": "success", "deal": new_deal}
 
 # 2. Memories CRUD
+@app.get("/memories")
 @app.get("/api/memories")
 def get_memories(deal_id: Optional[str] = None):
     if deal_id:
@@ -133,6 +136,7 @@ def get_memories(deal_id: Optional[str] = None):
         return {"memories": filtered}
     return {"memories": memories_db}
 
+@app.post("/memories/retain")
 @app.post("/api/memories/retain")
 def retain_memory_note(req: RetainNoteRequest):
     deal = next((d for d in deals_db if d["id"] == req.deal_id), None)
@@ -172,6 +176,7 @@ def retain_memory_note(req: RetainNoteRequest):
     save_json(MEMORIES_FILE, memories_db)
     return {"status": "success", "memory": memory_entry, "cloud_synced": cloud_synced}
 
+@app.delete("/memories/{memory_id}")
 @app.delete("/api/memories/{memory_id}")
 def delete_memory(memory_id: str):
     global memories_db
@@ -232,6 +237,7 @@ def extract_deal_entities(prompt: str):
 
 
 # 3. Live AI Copilot Chat (The Core Engine)
+@app.post("/chat")
 @app.post("/api/chat")
 def deal_copilot_chat(req: ChatQueryRequest):
     """
@@ -421,6 +427,7 @@ def deal_copilot_chat(req: ChatQueryRequest):
     }
 
 # 4. Settings Config
+@app.post("/config")
 @app.post("/api/config")
 def update_config(req: ConfigRequest):
     global hindsight_client, HINDSIGHT_API_KEY, HINDSIGHT_BASE_URL
