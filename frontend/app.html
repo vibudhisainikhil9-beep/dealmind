@@ -642,13 +642,16 @@ body {
 
   <!-- Top Navigation Header -->
   <header class="top-bar">
-    <div class="deal-selector-pill">
+    <div class="deal-selector-pill" id="top-deal-pill">
       <span style="color:var(--text-muted)">Deal Context:</span>
-      <strong id="top-deal-title" style="color:#fff">Zerodha (B2B SaaS Upgrade)</strong>
-      <span id="top-deal-arr" style="font-family:var(--font-mono);color:var(--green);margin-left:6px">$44,500 ARR</span>
+      <strong id="top-deal-title" style="color:#fff">Bespoke Workspace (No Active Account)</strong>
+      <span id="top-deal-arr" style="font-family:var(--font-mono);color:var(--green);margin-left:6px;display:none"></span>
     </div>
 
     <div class="top-actions">
+      <button class="pill-btn" onclick="openOnboardModal()">
+        <i class="fa-solid fa-plus" style="color:var(--green)"></i> Onboard Account
+      </button>
       <button class="pill-btn" onclick="openPlaybookModal()">
         <i class="fa-solid fa-circle-info" style="color:var(--accent)"></i> Guide
       </button>
@@ -696,26 +699,26 @@ body {
       <button class="mode-pill" id="mode-reflect" onclick="setMode('reflect')">Reflect Intelligence</button>
     </div>
 
-    <!-- Starter Prompts (Exact Gemini Style) -->
-    <div class="gemini-starter-prompts">
-      <button class="starter-pill-btn" onclick="runStarter('Generate a pre-call executive briefing for our upcoming call with Zerodha')">
+    <!-- Starter Prompts (Dynamic & Tailored to Business Needs) -->
+    <div class="gemini-starter-prompts" id="starter-prompts-container">
+      <button class="starter-pill-btn" onclick="handleStarterAction('brief')">
         <i class="fa-regular fa-file-lines"></i>
-        <span>Brief me on Zerodha constraints & stakeholder objections before our call</span>
+        <span id="starter-txt-brief">Generate a pre-call strategic briefing synthesizing all stakeholder objections</span>
       </button>
 
-      <button class="starter-pill-btn" onclick="runStarter('What is the optimal pricing and quote strategy for this deal based on past budget limits?')">
+      <button class="starter-pill-btn" onclick="handleStarterAction('pricing')">
         <i class="fa-solid fa-coins"></i>
-        <span>Calculate our maximum non-blocking ARR quote under Priya Menon's budget cap</span>
+        <span id="starter-txt-pricing">Calculate optimal non-blocking ARR quote under verified departmental budget caps</span>
       </button>
 
-      <button class="starter-pill-btn" onclick="runStarter('What are the active deal risks, objections, and technical blockers recorded so far?')">
+      <button class="starter-pill-btn" onclick="handleStarterAction('risks')">
         <i class="fa-solid fa-triangle-exclamation"></i>
-        <span>Identify fatal compliance redlines & why previous competitor was rejected</span>
+        <span id="starter-txt-risks">Identify active compliance gates, fatal blockers, and competitor displacement risks</span>
       </button>
 
-      <button class="starter-pill-btn" onclick="runStarter('Draft a tailored executive follow-up email addressing all known stakeholder constraints')">
+      <button class="starter-pill-btn" onclick="handleStarterAction('email')">
         <i class="fa-regular fa-paper-plane"></i>
-        <span>Draft executive follow-up email citing SEBI compliance and sub-12ms latency</span>
+        <span id="starter-txt-email">Draft an executive proposal email addressing technical constraints with grounded citations</span>
       </button>
     </div>
   </section>
@@ -766,7 +769,7 @@ body {
         <input type="text" id="auth-name" class="form-input" placeholder="e.g. Alex Chen" required style="margin-top:6px;margin-bottom:0">
       </div>
 
-      <button type="submit" class="pill-btn" style="width:100%;background:#fff;color:#131314;font-weight:600;justify-content:center;padding:12px;font-size:0.92rem;margin-bottom:12px">
+      <button type="submit" class="pill-btn" style="width:100%;background:#fff;color:#131314;font-weight:600;justify-content:center;padding:12px;font-size:0.92rem;margin-bottom:6px">
         <svg viewBox="0 0 24 24" style="width:18px;height:18px">
           <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/>
           <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/>
@@ -775,10 +778,72 @@ body {
         </svg>
         Continue with Google
       </button>
+    </form>
+  </div>
+</div>
 
-      <button type="button" onclick="quickGuestLogin()" class="pill-btn" style="width:100%;background:rgba(255,255,255,0.05);color:var(--text-sub);border:1px solid var(--border);justify-content:center;padding:10px;font-size:0.8rem">
-        ⚡ 1-Click Judge Guest Access
-      </button>
+<!-- ONBOARD BESPOKE DEAL MODAL (Rolls-Royce Level Tailoring) -->
+<div class="modal-overlay" id="onboard-deal-modal">
+  <div class="modal-card" style="width:min(560px,94%);padding:28px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+      <div>
+        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--green);font-weight:700;margin-bottom:4px">BESPOKE CLIENT ONBOARDING</div>
+        <h3 style="font-family:var(--font-head);font-size:1.25rem;font-weight:700;color:#fff">Onboard Enterprise Deal Account</h3>
+      </div>
+      <button onclick="closeOnboardModal()" class="pill-btn" style="padding:6px 12px;font-size:0.75rem">Close ✕</button>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text-sub);margin-bottom:18px">Tailor the account's persistent memory bank according to your exact business category and stakeholder constraints.</p>
+
+    <form onsubmit="handleOnboardSubmit(event)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Client Company Name</label>
+          <input type="text" id="ob-name" class="form-input" placeholder="e.g. Acme Global / Stripe" required style="margin-top:4px;margin-bottom:0">
+        </div>
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Business Vertical / Category</label>
+          <select id="ob-vertical" class="form-input" style="margin-top:4px;margin-bottom:0">
+            <option value="Enterprise B2B SaaS">Enterprise B2B SaaS</option>
+            <option value="Healthcare & Life Sciences (HIPAA)">Healthcare & Life Sciences (HIPAA)</option>
+            <option value="FinTech & Banking (SEBI / RBI)">FinTech & Banking (SEBI / RBI)</option>
+            <option value="Global Supply Chain & Logistics">Global Supply Chain & Logistics</option>
+            <option value="Aerospace & Manufacturing">Aerospace & Manufacturing</option>
+            <option value="Custom Enterprise Vertical">Custom Enterprise Vertical</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Target Contract Value ($ ARR)</label>
+          <input type="number" id="ob-arr" class="form-input" placeholder="e.g. 65000" required style="margin-top:4px;margin-bottom:0">
+        </div>
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Current Pipeline Stage</label>
+          <select id="ob-stage" class="form-input" style="margin-top:4px;margin-bottom:0">
+            <option value="Discovery">Discovery & Scoping</option>
+            <option value="Proposal Review">Technical Proposal Review</option>
+            <option value="Negotiation">Final Commercial Negotiation</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Key Decision Makers & Roles</label>
+        <input type="text" id="ob-stakeholders" class="form-input" placeholder="e.g. David Ross (CTO), Elena Ramos (Head of Procurement)" required style="margin-top:4px;margin-bottom:0">
+      </div>
+
+      <div style="margin-bottom:20px">
+        <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Primary Technical & Compliance Gates</label>
+        <input type="text" id="ob-gates" class="form-input" placeholder="e.g. Sub-12ms API Latency SLA, On-Prem Key Management, SOC2 Type II" required style="margin-top:4px;margin-bottom:0">
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px">
+        <button type="button" class="pill-btn" onclick="closeOnboardModal()">Cancel</button>
+        <button type="submit" class="pill-btn" style="background:var(--grad-green);color:#fff;font-weight:600">
+          <i class="fa-solid fa-rocket"></i> Launch Dedicated Account Workspace
+        </button>
+      </div>
     </form>
   </div>
 </div>
@@ -810,6 +875,72 @@ body {
   </div>
 </div>
 
+<!-- ONBOARD BESPOKE DEAL MODAL (Rolls-Royce Level Tailoring) -->
+<div class="modal-overlay" id="onboard-deal-modal">
+  <div class="modal-card" style="width:min(560px,94%);padding:28px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+      <div>
+        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--green);font-weight:700;margin-bottom:4px">BESPOKE CLIENT ONBOARDING</div>
+        <h3 style="font-family:var(--font-head);font-size:1.25rem;font-weight:700;color:#fff">Onboard Enterprise Deal Account</h3>
+      </div>
+      <button onclick="closeOnboardModal()" class="pill-btn" style="padding:6px 12px;font-size:0.75rem">Close ✕</button>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text-sub);margin-bottom:18px">Tailor the account's persistent memory bank according to your exact business category and stakeholder constraints.</p>
+
+    <form onsubmit="handleOnboardSubmit(event)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Client Company Name</label>
+          <input type="text" id="ob-name" class="form-input" placeholder="e.g. Acme Global / Stripe" required style="margin-top:4px;margin-bottom:0">
+        </div>
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Business Vertical / Category</label>
+          <select id="ob-vertical" class="form-input" style="margin-top:4px;margin-bottom:0">
+            <option value="Enterprise B2B SaaS">Enterprise B2B SaaS</option>
+            <option value="Healthcare & Life Sciences (HIPAA)">Healthcare & Life Sciences (HIPAA)</option>
+            <option value="FinTech & Banking (SEBI / RBI)">FinTech & Banking (SEBI / RBI)</option>
+            <option value="Global Supply Chain & Logistics">Global Supply Chain & Logistics</option>
+            <option value="Aerospace & Manufacturing">Aerospace & Manufacturing</option>
+            <option value="Custom Enterprise Vertical">Custom Enterprise Vertical</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Target Contract Value ($ ARR)</label>
+          <input type="number" id="ob-arr" class="form-input" placeholder="e.g. 65000" required style="margin-top:4px;margin-bottom:0">
+        </div>
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Current Pipeline Stage</label>
+          <select id="ob-stage" class="form-input" style="margin-top:4px;margin-bottom:0">
+            <option value="Discovery">Discovery & Scoping</option>
+            <option value="Proposal Review">Technical Proposal Review</option>
+            <option value="Negotiation">Final Commercial Negotiation</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Key Decision Makers & Roles</label>
+        <input type="text" id="ob-stakeholders" class="form-input" placeholder="e.g. David Ross (CTO), Elena Ramos (Head of Procurement)" required style="margin-top:4px;margin-bottom:0">
+      </div>
+
+      <div style="margin-bottom:20px">
+        <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Primary Technical & Compliance Gates</label>
+        <input type="text" id="ob-gates" class="form-input" placeholder="e.g. Sub-12ms API Latency SLA, On-Prem Key Management, SOC2 Type II" required style="margin-top:4px;margin-bottom:0">
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px">
+        <button type="button" class="pill-btn" onclick="closeOnboardModal()">Cancel</button>
+        <button type="submit" class="pill-btn" style="background:var(--grad-green);color:#fff;font-weight:600">
+          <i class="fa-solid fa-rocket"></i> Launch Dedicated Account Workspace
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- SETTINGS MODAL -->
 <div class="modal-overlay" id="settings-modal">
   <div class="modal-card">
@@ -823,6 +954,72 @@ body {
       <div style="display:flex;justify-content:flex-end;gap:10px">
         <button type="button" class="pill-btn" onclick="closeSettings()">Cancel</button>
         <button type="submit" class="pill-btn" style="background:#10B981;color:#051a14;font-weight:600">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ONBOARD BESPOKE DEAL MODAL (Rolls-Royce Level Tailoring) -->
+<div class="modal-overlay" id="onboard-deal-modal">
+  <div class="modal-card" style="width:min(560px,94%);padding:28px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+      <div>
+        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--green);font-weight:700;margin-bottom:4px">BESPOKE CLIENT ONBOARDING</div>
+        <h3 style="font-family:var(--font-head);font-size:1.25rem;font-weight:700;color:#fff">Onboard Enterprise Deal Account</h3>
+      </div>
+      <button onclick="closeOnboardModal()" class="pill-btn" style="padding:6px 12px;font-size:0.75rem">Close ✕</button>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text-sub);margin-bottom:18px">Tailor the account's persistent memory bank according to your exact business category and stakeholder constraints.</p>
+
+    <form onsubmit="handleOnboardSubmit(event)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Client Company Name</label>
+          <input type="text" id="ob-name" class="form-input" placeholder="e.g. Acme Global / Stripe" required style="margin-top:4px;margin-bottom:0">
+        </div>
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Business Vertical / Category</label>
+          <select id="ob-vertical" class="form-input" style="margin-top:4px;margin-bottom:0">
+            <option value="Enterprise B2B SaaS">Enterprise B2B SaaS</option>
+            <option value="Healthcare & Life Sciences (HIPAA)">Healthcare & Life Sciences (HIPAA)</option>
+            <option value="FinTech & Banking (SEBI / RBI)">FinTech & Banking (SEBI / RBI)</option>
+            <option value="Global Supply Chain & Logistics">Global Supply Chain & Logistics</option>
+            <option value="Aerospace & Manufacturing">Aerospace & Manufacturing</option>
+            <option value="Custom Enterprise Vertical">Custom Enterprise Vertical</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Target Contract Value ($ ARR)</label>
+          <input type="number" id="ob-arr" class="form-input" placeholder="e.g. 65000" required style="margin-top:4px;margin-bottom:0">
+        </div>
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Current Pipeline Stage</label>
+          <select id="ob-stage" class="form-input" style="margin-top:4px;margin-bottom:0">
+            <option value="Discovery">Discovery & Scoping</option>
+            <option value="Proposal Review">Technical Proposal Review</option>
+            <option value="Negotiation">Final Commercial Negotiation</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Key Decision Makers & Roles</label>
+        <input type="text" id="ob-stakeholders" class="form-input" placeholder="e.g. David Ross (CTO), Elena Ramos (Head of Procurement)" required style="margin-top:4px;margin-bottom:0">
+      </div>
+
+      <div style="margin-bottom:20px">
+        <label style="font-size:0.75rem;font-weight:600;color:var(--text-muted)">Primary Technical & Compliance Gates</label>
+        <input type="text" id="ob-gates" class="form-input" placeholder="e.g. Sub-12ms API Latency SLA, On-Prem Key Management, SOC2 Type II" required style="margin-top:4px;margin-bottom:0">
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px">
+        <button type="button" class="pill-btn" onclick="closeOnboardModal()">Cancel</button>
+        <button type="submit" class="pill-btn" style="background:var(--grad-green);color:#fff;font-weight:600">
+          <i class="fa-solid fa-rocket"></i> Launch Dedicated Account Workspace
+        </button>
       </div>
     </form>
   </div>
@@ -922,13 +1119,6 @@ function handleGoogleLogin(e) {
   document.getElementById('google-auth-modal').style.display = 'none';
 }
 
-function quickGuestLogin() {
-  currentUser = { name: "Hackathon Judge", email: "judge@devnovate.io" };
-  localStorage.setItem('dealmind_google_user', JSON.stringify(currentUser));
-  applyUserSession(currentUser);
-  document.getElementById('google-auth-modal').style.display = 'none';
-}
-
 function applyUserSession(user) {
   // Update Gemini greeting
   const greetingEl = document.getElementById('user-greeting-name');
@@ -970,9 +1160,6 @@ async function fetchDeals() {
     deals = data.deals || [];
     document.getElementById('deal-count-badge').textContent = deals.length;
     renderSidebarDeals();
-    if (deals.length > 0 && !activeDealId) {
-      selectDeal(deals[0].id);
-    }
   } catch (err) {
     console.error('Failed to load deals:', err);
   }
@@ -980,6 +1167,19 @@ async function fetchDeals() {
 
 function renderSidebarDeals() {
   const container = document.getElementById('deals-sidebar-list');
+  if (deals.length === 0) {
+    container.innerHTML = `
+      <div style="padding:14px 12px;background:rgba(255,255,255,0.02);border:1px dashed var(--border);border-radius:10px;text-align:center;margin-top:6px">
+        <div style="font-size:0.78rem;font-weight:600;color:#fff;margin-bottom:2px">No Accounts Active</div>
+        <p style="font-size:0.7rem;color:var(--text-muted);margin-bottom:10px">Onboard a client account tailored to your business.</p>
+        <button class="pill-btn" onclick="openOnboardModal()" style="width:100%;background:var(--grad-green);color:#fff;font-size:0.75rem;padding:6px;justify-content:center;font-weight:600">
+          + Configure Account
+        </button>
+      </div>
+    `;
+    return;
+  }
+
   container.innerHTML = deals.map(d => `
     <div class="history-item ${d.id === activeDealId ? 'active' : ''}" onclick="selectDeal('${d.id}')">
       <span>${escapeHtml(d.name)}</span>
@@ -994,7 +1194,78 @@ function selectDeal(id) {
   const d = deals.find(x => x.id === id);
   if (d) {
     document.getElementById('top-deal-title').textContent = d.name;
-    document.getElementById('top-deal-arr').textContent = `$${d.arr.toLocaleString()} ARR`;
+    const arrEl = document.getElementById('top-deal-arr');
+    arrEl.style.display = 'inline';
+    arrEl.textContent = `$${d.arr.toLocaleString()} ARR`;
+  }
+}
+
+function openOnboardModal() { document.getElementById('onboard-deal-modal').classList.add('open'); }
+function closeOnboardModal() { document.getElementById('onboard-deal-modal').classList.remove('open'); }
+
+async function handleOnboardSubmit(e) {
+  e.preventDefault();
+  const name = document.getElementById('ob-name').value.trim();
+  const vertical = document.getElementById('ob-vertical').value;
+  const arr = parseFloat(document.getElementById('ob-arr').value);
+  const stage = document.getElementById('ob-stage').value;
+  const stakeholders = document.getElementById('ob-stakeholders').value.split(',').map(s => s.trim());
+  const gates = document.getElementById('ob-gates').value.trim();
+
+  try {
+    const res = await fetch('/api/deals', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: `${name} (${vertical})`,
+        arr: arr,
+        stage: stage,
+        stakeholders: stakeholders
+      })
+    });
+    const data = await res.json();
+    const newDeal = data.deal;
+
+    // Retain initial compliance & architecture gates to Hindsight Cloud
+    if (gates) {
+      await fetch('/api/memories/retain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          deal_id: newDeal.id,
+          stakeholder: stakeholders[0] || 'Leadership',
+          category: 'Compliance & Architecture',
+          content: `Initial client gating constraints: ${gates}`
+        })
+      });
+    }
+
+    closeOnboardModal();
+    await fetchDeals();
+    selectDeal(newDeal.id);
+    alert(`Account ${newDeal.name} onboarded! Dedicated Hindsight memory bank initialized.`);
+  } catch(err) {
+    alert('Failed to onboard account: ' + err.message);
+  }
+}
+
+function handleStarterAction(type) {
+  if (!activeDealId) {
+    alert("Please onboard or select an active account first so DealMind can ground the analysis in that client's specific memory bank.");
+    openOnboardModal();
+    return;
+  }
+  const d = deals.find(x => x.id === activeDealId);
+  const accountName = d ? d.name : "this account";
+
+  if (type === 'brief') {
+    runStarter(`Generate a pre-call strategic executive briefing for our upcoming call with ${accountName}. Synthesize all active stakeholder objections, compliance constraints, and budget limits.`);
+  } else if (type === 'pricing') {
+    runStarter(`What is the optimal pricing and contract quote strategy for ${accountName} under known stakeholder budget limits?`);
+  } else if (type === 'risks') {
+    runStarter(`What are the active deal risks, objections, and technical blockers recorded for ${accountName}?`);
+  } else if (type === 'email') {
+    runStarter(`Draft a tailored executive follow-up email for ${accountName} addressing all known stakeholder constraints with grounded citations.`);
   }
 }
 
