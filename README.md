@@ -65,8 +65,8 @@ flowchart TD
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/CoreStackHQ/dealmind.git
-cd dealmind/backend
+git clone https://github.com/vibudhisainikhil9-beep/dealmind.git
+cd dealmind
 ```
 
 ### 2. Install Dependencies
@@ -78,7 +78,7 @@ pip install -r requirements.txt
 Create a `.env` file or export your credentials:
 ```bash
 export HINDSIGHT_API_KEY="your_vectorize_hindsight_api_key"
-export HINDSIGHT_BASE_URL="https://ui.hindsight.vectorize.io"
+export HINDSIGHT_BASE_URL="https://api.hindsight.vectorize.io"
 ```
 *(Note: If running offline or without an active key, DealMind gracefully falls back to its built-in local memory engine so live demonstrations never crash.)*
 

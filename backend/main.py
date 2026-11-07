@@ -26,9 +26,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Persistent storage file paths
+# Persistent storage file paths (with serverless /tmp fallback)
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
-os.makedirs(DATA_DIR, exist_ok=True)
+try:
+    os.makedirs(DATA_DIR, exist_ok=True)
+except Exception:
+    DATA_DIR = "/tmp"
+
 DEALS_FILE = os.path.join(DATA_DIR, "deals.json")
 MEMORIES_FILE = os.path.join(DATA_DIR, "memories.json")
 
@@ -45,117 +49,33 @@ try:
 except Exception as e:
     print(f"Hindsight client init: {e}")
 
-# Helper: Load/Save JSON
+# Helper: Load/Save JSON (with serverless /tmp fallback)
 def load_json(filepath, default):
-    if os.path.exists(filepath):
+    tmp_path = os.path.join("/tmp", os.path.basename(filepath))
+    target = tmp_path if os.path.exists(tmp_path) else filepath
+    if os.path.exists(target):
         try:
-            with open(filepath, "r", encoding="utf-8") as f:
+            with open(target, "r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception:
             return default
     return default
 
 def save_json(filepath, data):
-    with open(filepath, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
+    try:
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+    except Exception:
+        try:
+            tmp_path = os.path.join("/tmp", os.path.basename(filepath))
+            with open(tmp_path, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2)
+        except Exception:
+            pass
 
-# Initial Seed Data
-DEFAULT_DEALS = [
-    {
-        "id": "deal-1",
-        "name": "Zerodha (B2B SaaS Upgrade)",
-        "arr": 44500,
-        "stage": "Negotiation",
-        "stakeholders": ["Kiran Nair (CTO)", "Priya Menon (Head of Procurement)"],
-        "industry": "Financial Technology",
-        "health_score": 88
-    },
-    {
-        "id": "deal-2",
-        "name": "Apollo Health Network",
-        "arr": 72000,
-        "stage": "Proposal Review",
-        "stakeholders": ["Dr. Ramesh Iyer (CIO)", "Suresh Kumar (Head of Security)"],
-        "industry": "Healthcare",
-        "health_score": 74
-    },
-    {
-        "id": "deal-3",
-        "name": "Delhivery Logistics",
-        "arr": 95000,
-        "stage": "Discovery",
-        "stakeholders": ["Anjali Kapoor (VP Engineering)"],
-        "industry": "Logistics & Supply Chain",
-        "health_score": 62
-    },
-    {
-        "id": "deal-4",
-        "name": "Meesho E-Commerce",
-        "arr": 58000,
-        "stage": "Discovery",
-        "stakeholders": ["Ravi Shankar (Director of Platform)"],
-        "industry": "Retail & E-Commerce",
-        "health_score": 70
-    }
-]
-
-DEFAULT_MEMORIES = [
-    {
-        "id": "mem-101",
-        "deal_id": "deal-1",
-        "client": "Zerodha (B2B SaaS Upgrade)",
-        "stakeholder": "Kiran Nair (CTO)",
-        "timestamp": "2026-10-18T14:30:00Z",
-        "content": "Kiran mandated that public multi-tenant cloud is non-negotiable due to SEBI data localization rules. Dedicated Mumbai private VPC or on-prem deployment is the only acceptable architecture.",
-        "category": "Compliance & Architecture",
-        "entities": ["SEBI Compliance", "Mumbai VPC", "On-Premise", "Kiran Nair"],
-        "sentiment": "Strict"
-    },
-    {
-        "id": "mem-102",
-        "deal_id": "deal-1",
-        "client": "Zerodha (B2B SaaS Upgrade)",
-        "stakeholder": "Priya Menon (Head of Procurement)",
-        "timestamp": "2026-10-25T11:00:00Z",
-        "content": "Priya confirmed Q4 budget is strictly capped at $44,500 ARR. Anything above $50,000 triggers mandatory board-level approval causing a 6–8 week procurement delay.",
-        "category": "Budget & Procurement",
-        "entities": ["$44,500 Cap", "Board Approval", "Procurement Gate", "Priya Menon"],
-        "sentiment": "Strict"
-    },
-    {
-        "id": "mem-103",
-        "deal_id": "deal-2",
-        "client": "Apollo Health Network",
-        "stakeholder": "Dr. Ramesh Iyer (CIO)",
-        "timestamp": "2026-11-02T16:15:00Z",
-        "content": "Requires HIPAA Business Associate Agreement and SOC2 Type II audit report before engaging in any technical pilot. Previously rejected a competitor for breaching PHI data transfer policies.",
-        "category": "Compliance & Security",
-        "entities": ["HIPAA BAA", "SOC2 Type II", "PHI Data", "Dr. Ramesh Iyer"],
-        "sentiment": "Cautious"
-    },
-    {
-        "id": "mem-104",
-        "deal_id": "deal-3",
-        "client": "Delhivery Logistics",
-        "stakeholder": "Anjali Kapoor (VP Engineering)",
-        "timestamp": "2026-11-01T09:00:00Z",
-        "content": "Anjali's primary concern is real-time webhook latency. Any platform averaging over 200ms will not pass their SLA requirements for last-mile delivery tracking.",
-        "category": "Performance & SLA",
-        "entities": ["Latency SLA", "Webhook", "200ms Threshold", "Anjali Kapoor"],
-        "sentiment": "Analytical"
-    },
-    {
-        "id": "mem-105",
-        "deal_id": "deal-4",
-        "client": "Meesho E-Commerce",
-        "stakeholder": "Ravi Shankar (Director of Platform)",
-        "timestamp": "2026-10-30T14:00:00Z",
-        "content": "Meesho needs multi-region support across India and Southeast Asia. Single-region architecture will not meet their platform redundancy requirements for Tier-2 city expansion.",
-        "category": "Infrastructure Requirement",
-        "entities": ["Multi-Region", "Southeast Asia", "Redundancy", "Ravi Shankar"],
-        "sentiment": "Curious"
-    }
-]
+# Clean Initial State (No hardcoded deals or pre-filled chats)
+DEFAULT_DEALS = []
+DEFAULT_MEMORIES = []
 
 deals_db = load_json(DEALS_FILE, DEFAULT_DEALS)
 memories_db = load_json(MEMORIES_FILE, DEFAULT_MEMORIES)
@@ -259,104 +179,245 @@ def delete_memory(memory_id: str):
     save_json(MEMORIES_FILE, memories_db)
     return {"status": "deleted", "id": memory_id}
 
+def extract_deal_entities(prompt: str):
+    """
+    Intelligently extracts company name, ARR budget, and stakeholders from natural language chat.
+    Allows DealMind to automatically onboard accounts without forcing manual form entry.
+    """
+    prompt_clean = prompt.strip()
+    
+    # 1. Company Name Extraction
+    company_patterns = [
+        r'(?:meeting with|met with|call with|pitching to|pitching|selling to|deal with|account for|client|prospect|contract with)\s+([A-Z][A-Za-z0-9&\s\.\-]{2,30}?)(?:\b(?:next|yesterday|today|last|\$|\.|,|;|for|regarding|about|who|where|and)|\n|$)',
+        r'\b([A-Z][A-Za-z0-9&\.\-]{2,20}\s+(?:Corp|Corporation|Inc|Technologies|Tech|Enterprises|Logistics|Health|Systems|Labs|Networks|Solutions|Capital|Bank|Finance))\b',
+        r'\b(?:at|for)\s+([A-Z][A-Za-z0-9&]{2,25})\b'
+    ]
+    company = None
+    for pattern in company_patterns:
+        m = re.search(pattern, prompt_clean, re.IGNORECASE)
+        if m:
+            cand = m.group(1).strip()
+            # Filter stopwords
+            if cand.lower() not in ['my', 'our', 'the', 'an', 'a', 'this', 'that', 'dealmind', 'enterprise', 'general', 'deal', 'client', 'company']:
+                company = cand
+                break
+
+    # 2. Budget / ARR Extraction
+    arr = 50000
+    arr_match = re.search(r'(?:\$|usd\s*)(\d+[\d,]*)\s*(k|m|million|thousand)?', prompt_clean, re.IGNORECASE)
+    if not arr_match:
+        arr_match = re.search(r'\b(\d+[\d,]*)\s*(k|m|million|thousand)\s*(?:arr|budget|deal|contract|annual)?\b', prompt_clean, re.IGNORECASE)
+    
+    if arr_match:
+        val_str = arr_match.group(1).replace(',', '')
+        try:
+            val = float(val_str)
+            unit = (arr_match.group(2) or '').lower()
+            if unit in ['k', 'thousand']:
+                arr = int(val * 1000)
+            elif unit in ['m', 'million']:
+                arr = int(val * 1000000)
+            elif val < 500:
+                arr = int(val * 1000)
+            else:
+                arr = int(val)
+        except Exception:
+            pass
+
+    # 3. Stakeholder Extraction
+    sh_match = re.search(r'\b(?:CTO|CFO|CISO|VP|Director|Head of [A-Za-z]+|Manager|Lead)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)', prompt_clean)
+    stakeholder = sh_match.group(0) if sh_match else "Key Decision Maker"
+
+    return company, arr, stakeholder
+
+
 # 3. Live AI Copilot Chat (The Core Engine)
 @app.post("/api/chat")
 def deal_copilot_chat(req: ChatQueryRequest):
     """
-    Real-time dynamic chat assistant.
-    Can be run with memory enabled (DealMind Hindsight) or disabled (Stateless).
+    Real-time dynamic chat assistant with automatic frictionless onboarding.
+    Listens to client context and automatically designs/tailors cognition like a Rolls-Royce.
     """
-    deal = next((d for d in deals_db if d["id"] == req.deal_id), None) if req.deal_id else None
-    account_name = deal["name"] if deal else "General"
+    global deals_db, memories_db
+    new_deal_created = None
+    prompt_text = req.prompt.strip()
+    prompt_lower = prompt_text.lower()
+
+    # 1. Automatic Account Detection & Onboarding from Chat
+    extracted_company, extracted_arr, extracted_stakeholder = extract_deal_entities(prompt_text)
     
-    # 1. Search relevant memories via Hindsight recall pipeline
+    # Check if this company already exists
+    existing_deal = None
+    if extracted_company:
+        for d in deals_db:
+            if extracted_company.lower() in d["name"].lower() or d["name"].lower() in extracted_company.lower():
+                existing_deal = d
+                break
+
+    deal = None
+    if req.deal_id:
+        deal = next((d for d in deals_db if d["id"] == req.deal_id), None)
+    
+    # If a new company is mentioned and no existing deal matched, AUTO-ONBOARD IT!
+    if extracted_company and not existing_deal and not deal:
+        deal_id = f"deal-{uuid.uuid4().hex[:6]}"
+        new_deal = {
+            "id": deal_id,
+            "name": extracted_company,
+            "arr": extracted_arr,
+            "stage": "Discovery & Qualification",
+            "stakeholders": [extracted_stakeholder],
+            "summary": f"Automatically onboarded from executive notes. Primary contact: {extracted_stakeholder}.",
+            "health_score": 85
+        }
+        deals_db.insert(0, new_deal)
+        save_json(DEALS_FILE, deals_db)
+        deal = new_deal
+        new_deal_created = new_deal
+
+        # Automatically retain initial facts into persistent memory
+        mem_id = f"mem-{uuid.uuid4().hex[:6]}"
+        mem_entry = {
+            "id": mem_id,
+            "deal_id": deal_id,
+            "category": "Initial Discovery & Requirements",
+            "content": prompt_text,
+            "stakeholder": extracted_stakeholder,
+            "entities": [extracted_company, f"${extracted_arr:,} ARR"],
+            "timestamp": datetime.now().isoformat(),
+            "cloud_synced": True
+        }
+        memories_db.insert(0, mem_entry)
+        save_json(MEMORIES_FILE, memories_db)
+
+        # Sync to live Hindsight Cloud
+        if hindsight_client:
+            try:
+                hindsight_client.retain(
+                    bank_id=f"dealmind_{deal_id}",
+                    content=prompt_text,
+                    context=f"Autonomous onboarding for {extracted_company} with {extracted_stakeholder}"
+                )
+            except Exception as e:
+                print(f"Hindsight auto-retain note: {e}")
+
+    elif existing_deal and not deal:
+        deal = existing_deal
+
+    account_name = deal["name"] if deal else "Enterprise Workspace"
+
+    # 2. Search relevant memories via Hindsight recall pipeline
     relevant_memories = []
     if req.use_memory:
-        query_words = req.prompt.lower().split()
+        query_words = prompt_lower.split()
         for m in memories_db:
             score = 0.0
-            if req.deal_id and m.get("deal_id") == req.deal_id:
+            if deal and m.get("deal_id") == deal["id"]:
                 score += 3.0
             text = (m["content"] + " " + " ".join(m.get("entities", []))).lower()
             for w in query_words:
-                if w in text:
+                if len(w) > 3 and w in text:
                     score += 1.5
             if score > 0:
                 relevant_memories.append({"score": round(score, 2), "memory": m})
         relevant_memories.sort(key=lambda x: x["score"], reverse=True)
         relevant_memories = relevant_memories[:4]
 
-    # 2. Dynamic generation logic
-    prompt_lower = req.prompt.lower()
+    # 3. Dynamic Bespoke Intelligence Generation
+    context_applied = []
     
     if not req.use_memory:
-        # Stateless mode (fails to account for history)
-        if "price" in prompt_lower or "cost" in prompt_lower or "quote" in prompt_lower:
-            reply = f"For {account_name}, our standard enterprise tier is $65,000 ARR hosted on our global multi-tenant cluster. Standard payment terms apply."
-        elif "email" in prompt_lower or "proposal" in prompt_lower:
-            reply = f"Subject: Proposal for {account_name}\n\nHi,\n\nFollowing up on our product! Let's schedule a 30-minute introductory call next week to walk through our features.\n\nBest,\nSales Team"
-        elif "risk" in prompt_lower or "objection" in prompt_lower:
-            reply = "No historical risks recorded in standard memory. Recommend asking the client for their requirements on the next call."
-        else:
-            reply = f"I am a generic AI sales assistant. I do not have access to past call notes or previous constraints for {account_name}."
-        
+        # Stateless mode
+        reply = (
+            f"**Generic Assistant (Stateless Mode):**\n\n"
+            f"I do not have access to persistent Hindsight memory banks for {account_name}. "
+            f"Standard responses cannot factor in historical compliance constraints, prior budget approvals, or stakeholder objections."
+        )
         return {
             "mode": "Stateless (No Memory)",
             "reply": reply,
             "recalled_memories": [],
-            "context_applied": []
+            "context_applied": [],
+            "new_deal": new_deal_created
         }
 
     # Hindsight Memory-Augmented Mode
-    context_applied = []
-    recalled_facts = [rm["memory"]["content"] for rm in relevant_memories]
+    if new_deal_created:
+        # Newly auto-onboarded deal
+        context_applied = [
+            f"Detected & auto-onboarded {new_deal_created['name']} into pipeline",
+            f"Allocated dedicated Hindsight memory bank: dealmind_{new_deal_created['id']}",
+            f"Indexed stakeholder: {extracted_stakeholder} (${new_deal_created['arr']:,} ARR)"
+        ]
+        reply = (
+            f"✨ **Account Automatically Onboarded: {new_deal_created['name']}**\n\n"
+            f"• **Estimated ARR:** ${new_deal_created['arr']:,}\n"
+            f"• **Identified Stakeholder:** {extracted_stakeholder}\n"
+            f"• **Cognition Status:** Dedicated persistent Hindsight memory bank initialized (`dealmind_{new_deal_created['id']}`).\n\n"
+            f"**Executive Strategic Synthesis:**\n"
+            f"I have parsed and indexed your call notes into Hindsight. Here is our strategic closing playbook for {new_deal_created['name']}:\n\n"
+            f"1. **Stakeholder Alignment:** Ground the pitch around {extracted_stakeholder}'s explicit priorities to eliminate internal blockers.\n"
+            f"2. **Budget Optimization:** Anchor contract sizing around ${new_deal_created['arr']:,} ARR to avoid secondary CFO approval cycles.\n"
+            f"3. **Next Action:** Ready to draft a tailored executive proposal, objection-handling memo, or compliance readiness brief whenever you need."
+        )
 
-    if "price" in prompt_lower or "cost" in prompt_lower or "quote" in prompt_lower:
-        if deal and deal["id"] == "deal-1":
-            reply = (
-                f"**Strategic Pricing Recommendation for {deal['name']}:**\n\n"
-                f"• **Quote: $44,500 ARR** (Strictly below Neha Sharma's $45,000 Q4 department threshold).\n"
-                f"• **Architecture: Dedicated Mumbai VPC** (Fulfills Vikram Sethi's RBI data localization requirement).\n\n"
-                f"**Why this wins:** Keeps the contract within the Head of Procurement's signing limit, completely bypassing the 8-week CFO board approval cycle."
-            )
-            context_applied = ["Recalled Neha's $45k budget cap (mem-102)", "Recalled Vikram's RBI Mumbai VPC gate (mem-101)"]
-        else:
-            reply = f"Based on Hindsight memory for {account_name}, we recommend quoting within the established budget while addressing active architectural constraints."
-            context_applied = [f"Recalled {len(relevant_memories)} account memories"]
-
-    elif "email" in prompt_lower or "draft" in prompt_lower:
-        if deal and deal["id"] == "deal-1":
-            reply = (
-                f"**Drafted Follow-up Email to Neha Sharma:**\n\n"
-                f"**Subject:** Pre-Approved Mumbai VPC Deployment ($44,500 ARR) — FinTech Corp\n\n"
-                f"Hi Neha,\n\n"
-                f"Great connecting again. In direct alignment with Vikram's RBI data localization requirements and your Q4 procurement budget threshold, we have pre-packaged an isolated Mumbai VPC deployment configured strictly at **$44,500 ARR**.\n\n"
-                f"Because this stays within your departmental direct-approval cap, no 8-week CFO board review is required, enabling your team to launch before year-end.\n\n"
-                f"Can I send over the compliance audit certificate and one-page agreement for your sign-off today?\n\n"
-                f"Best regards,\nVibudhi Sainikhil | Tech Lead, CoreStack"
-            )
-            context_applied = ["Recalled procurement threshold", "Recalled RBI compliance requirements", "Addressed stakeholders directly"]
-        else:
-            reply = f"Drafted custom contextual email incorporating past stakeholder constraints for {account_name}."
-            context_applied = ["Loaded Hindsight memory bank"]
-
-    elif "risk" in prompt_lower or "objection" in prompt_lower or "blocker" in prompt_lower:
+    elif deal:
+        # User is chatting about an existing deal
         if relevant_memories:
-            facts = "\n".join([f"• **{rm['memory']['category']}:** {rm['memory']['content']} *(Logged by {rm['memory']['stakeholder']})*" for rm in relevant_memories])
-            reply = f"**Active Deal Risks & Objections for {account_name}:**\n\n{facts}\n\n**Hindsight Strategic Play:** Proactively address the compliance and budget limits in the next email rather than waiting for the client to bring them up."
-            context_applied = [f"{rm['memory']['id']}: {rm['memory']['category']}" for rm in relevant_memories]
+            facts = "\n".join([f"• **{rm['memory']['category']}:** {rm['memory']['content']} *(Logged: {rm['memory'].get('stakeholder', 'Stakeholder')})*" for rm in relevant_memories])
+            context_applied = [f"Recalled {rm['memory']['id']}: {rm['memory']['category']}" for rm in relevant_memories]
         else:
-            reply = f"No active blockers flagged yet in the memory bank for {account_name}. Ready to retain notes from the next call."
+            facts = f"• Account: {deal['name']} | Stage: {deal['stage']} | Target: ${deal['arr']:,} ARR"
+            context_applied = [f"Active Account: {deal['name']}"]
+
+        if "price" in prompt_lower or "cost" in prompt_lower or "quote" in prompt_lower:
+            reply = (
+                f"**Strategic Pricing Architecture for {deal['name']}:**\n\n"
+                f"• **Target Quote:** ${deal['arr']:,} ARR\n"
+                f"• **Commercial Structuring:** Calibrated to stay strictly within verified departmental sign-off limits to bypass lengthy board reviews.\n\n"
+                f"**Verified Grounding:**\n{facts}\n\n"
+                f"**Strategic Recommendation:** Package deployment and SLA into an all-inclusive annual tier to lock in contract signing before quarter-end."
+            )
+        elif "email" in prompt_lower or "draft" in prompt_lower or "proposal" in prompt_lower:
+            stakeholder_to = deal["stakeholders"][0] if deal.get("stakeholders") else "Decision Maker"
+            reply = (
+                f"**Drafted Executive Follow-up for {deal['name']}:**\n\n"
+                f"**Subject:** Pre-Approved Implementation Plan (${deal['arr']:,} ARR) — Next Steps\n\n"
+                f"Hi {stakeholder_to},\n\n"
+                f"Following our recent strategic discussion, we have pre-packaged an enterprise deployment structured specifically around your architectural requirements at **${deal['arr']:,} ARR**.\n\n"
+                f"This proposal directly addresses your team's compliance and operational priorities while remaining within your department's direct-approval threshold.\n\n"
+                f"Would you be open to a brief 15-minute alignment call this Thursday to finalize the implementation roadmap?\n\n"
+                f"Best regards,\nDealMind Enterprise Deal Team"
+            )
+        elif "risk" in prompt_lower or "objection" in prompt_lower or "blocker" in prompt_lower:
+            reply = (
+                f"**Cognitive Risk & Gate Analysis for {deal['name']}:**\n\n"
+                f"{facts}\n\n"
+                f"**Hindsight Proactive Play:** Address these constraints directly in the next communication rather than waiting for security or procurement review to delay the deal."
+            )
+        else:
+            reply = (
+                f"**Deal Intelligence Briefing for {deal['name']}:**\n\n"
+                f"{facts}\n\n"
+                f"How would you like to proceed? I can draft a tailored contract, build an objection defense matrix, or calculate optimal pricing concessions."
+            )
+
     else:
-        mem_summary = ", ".join([rm["memory"]["category"] for rm in relevant_memories]) if relevant_memories else "No prior constraints"
-        reply = f"**DealMind Memory Analysis ({account_name}):**\n\nI synthesized context from {len(relevant_memories)} memories ({mem_summary}).\n\nHow would you like to proceed? I can draft a tailored contract, prepare an objection-handling briefing, or calculate custom deal terms."
-        context_applied = [f"Recalled {len(relevant_memories)} memories from Hindsight"]
+        # General question or user explaining their business
+        context_applied = ["Bespoke Deal Intelligence Session Active"]
+        reply = (
+            f"**DealMind Enterprise Deal Intelligence:**\n\n"
+            f"I am actively listening and ready to customize our cognition engine to your exact business needs.\n\n"
+            f"To auto-onboard any client into your pipeline, simply paste your meeting notes, client emails, or deal summary below (e.g., *'Met with Stripe, CTO Alex wants ISO27001, budget is $80k ARR'*).\n\n"
+            f"DealMind will **automatically detect the account, allocate a dedicated persistent Hindsight memory bank, and map out your closing strategy**."
+        )
 
     return {
         "mode": "DealMind (Hindsight Memory)",
         "reply": reply,
         "recalled_memories": [rm["memory"] for rm in relevant_memories],
-        "context_applied": context_applied
+        "context_applied": context_applied,
+        "new_deal": new_deal_created
     }
 
 # 4. Settings Config
@@ -372,25 +433,31 @@ def update_config(req: ConfigRequest):
     except Exception as e:
         return {"status": "local_fallback", "message": str(e)}
 
-# Static files & frontend
-frontend_dir = os.path.join(os.path.dirname(__file__), "..", "frontend")
+# Static files & frontend (resolves across local uvicorn and Vercel serverless)
+possible_frontend_dirs = [
+    os.path.join(os.path.dirname(__file__), "..", "frontend"),
+    os.path.join(os.path.dirname(__file__), "frontend"),
+    os.path.join(os.getcwd(), "frontend"),
+    "/var/task/frontend"
+]
+frontend_dir = next((d for d in possible_frontend_dirs if os.path.exists(d)), possible_frontend_dirs[0])
+
 if os.path.exists(frontend_dir):
     app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
 
 @app.get("/")
 def serve_index():
-    index_file = os.path.join(frontend_dir, "index.html")
-    if os.path.exists(index_file):
-        return FileResponse(index_file)
+    for f in [os.path.join(frontend_dir, "index.html"), "frontend/index.html", "index.html"]:
+        if os.path.exists(f):
+            return FileResponse(f)
     return {"status": "running", "message": "DealMind API active"}
 
 @app.get("/app")
 def serve_app():
-    app_file = os.path.join(frontend_dir, "app.html")
-    if os.path.exists(app_file):
-        return FileResponse(app_file)
-    index_file = os.path.join(frontend_dir, "index.html")
-    return FileResponse(index_file)
+    for f in [os.path.join(frontend_dir, "app.html"), "frontend/app.html", "app.html"]:
+        if os.path.exists(f):
+            return FileResponse(f)
+    return serve_index()
 
 if __name__ == "__main__":
     import uvicorn

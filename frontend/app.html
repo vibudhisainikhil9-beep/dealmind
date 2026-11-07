@@ -679,16 +679,19 @@ body {
       </svg>
     </div>
 
-    <!-- Clean Professional Greeting (Dynamically customized per Google User) -->
+    <!-- Clean Professional Greeting -->
     <h1 class="gemini-greeting">
-      Where should we close deals today, <span id="user-greeting-name">there</span>?
+      Where should we close deals today?
     </h1>
+    <p style="font-size:0.92rem;color:var(--text-muted);margin-top:4px;margin-bottom:28px">
+      Bespoke autonomous deal cognition with persistent Vectorize Hindsight memory.
+    </p>
 
     <!-- The Iconic Pill Input Bar (No model selector dropdown) -->
     <div class="gemini-input-pill-container">
       <div class="gemini-input-pill">
-        <button class="gemini-plus-btn" onclick="openRetainModal()" title="Retain New Note"><i class="fa-solid fa-plus"></i></button>
-        <input type="text" id="home-chat-input" class="gemini-input-field" placeholder="Ask DealMind about pricing caps, objections, SEBI/compliance rules..." onkeydown="handleInputKey(event)">
+        <button class="gemini-plus-btn" onclick="openRetainModal()" title="Retain Note"><i class="fa-solid fa-plus"></i></button>
+        <input type="text" id="home-chat-input" class="gemini-input-field" placeholder="Paste meeting notes or ask strategy (auto-onboards accounts)..." onkeydown="handleInputKey(event)">
         <button class="gemini-send-btn" onclick="submitHomeQuery()" title="Send"><i class="fa-solid fa-arrow-up"></i></button>
       </div>
     </div>
@@ -1047,8 +1050,8 @@ body {
       <div style="display:flex;gap:14px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:14px">
         <div style="width:28px;height:28px;border-radius:50%;background:rgba(16,185,129,0.15);color:var(--green);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.82rem;flex-shrink:0">1</div>
         <div>
-          <strong style="font-size:0.86rem;color:#fff;display:block;margin-bottom:2px">Select or Create Account Context</strong>
-          <span style="font-size:0.8rem;color:var(--text-muted);line-height:1.5">Click any active account in the left pipeline sidebar (e.g. Zerodha, Apollo Health) to automatically isolate and ground the conversation within that company's specific memory bank.</span>
+          <strong style="font-size:0.86rem;color:#fff;display:block;margin-bottom:2px">Autonomous Account Onboarding</strong>
+          <span style="font-size:0.8rem;color:var(--text-muted);line-height:1.5">Simply paste meeting notes or type in chat—DealMind automatically detects client names, extracts budget caps, initializes a persistent memory bank, and maps the account into your sidebar pipeline.</span>
         </div>
       </div>
 
@@ -1120,24 +1123,16 @@ function handleGoogleLogin(e) {
 }
 
 function applyUserSession(user) {
-  // Update Gemini greeting
-  const greetingEl = document.getElementById('user-greeting-name');
-  if (greetingEl) greetingEl.textContent = user.name;
-
-  // Update sidebar footer with user credentials
-  const initials = (user.name || 'User').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  // Update sidebar footer with clean enterprise status
   const footer = document.getElementById('sidebar-user-footer');
   if (footer) {
     footer.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:30px;height:30px;border-radius:50%;background:var(--grad-green);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;color:#fff">${initials}</div>
-          <div style="display:flex;flex-direction:column;max-width:140px">
-            <span style="font-size:0.82rem;font-weight:600;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(user.name)}</span>
-            <span style="font-size:0.7rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(user.email)}</span>
-          </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="width:8px;height:8px;border-radius:50%;background:#10B981;box-shadow:0 0 10px #10B981;display:inline-block"></span>
+          <span style="font-size:0.76rem;color:var(--text-muted);font-weight:500;letter-spacing:0.02em">Cognitive Engine Active</span>
         </div>
-        <button onclick="handleSignOut()" title="Sign Out" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.82rem;padding:4px" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='var(--text-muted)'">
+        <button onclick="handleSignOut()" title="Sign Out (${escapeHtml(user.email || user.name)})" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.82rem;padding:4px" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='var(--text-muted)'">
           <i class="fa-solid fa-arrow-right-from-bracket"></i>
         </button>
       </div>
@@ -1169,12 +1164,12 @@ function renderSidebarDeals() {
   const container = document.getElementById('deals-sidebar-list');
   if (deals.length === 0) {
     container.innerHTML = `
-      <div style="padding:14px 12px;background:rgba(255,255,255,0.02);border:1px dashed var(--border);border-radius:10px;text-align:center;margin-top:6px">
-        <div style="font-size:0.78rem;font-weight:600;color:#fff;margin-bottom:2px">No Accounts Active</div>
-        <p style="font-size:0.7rem;color:var(--text-muted);margin-bottom:10px">Onboard a client account tailored to your business.</p>
-        <button class="pill-btn" onclick="openOnboardModal()" style="width:100%;background:var(--grad-green);color:#fff;font-size:0.75rem;padding:6px;justify-content:center;font-weight:600">
-          + Configure Account
-        </button>
+      <div style="padding:18px 12px;background:rgba(255,255,255,0.02);border:1px dashed var(--border);border-radius:12px;text-align:center;margin-top:10px">
+        <div style="width:32px;height:32px;border-radius:50%;background:rgba(16,185,129,0.12);display:inline-flex;align-items:center;justify-content:center;margin-bottom:8px">
+          <i class="fa-solid fa-wand-magic-sparkles" style="color:var(--green);font-size:0.85rem"></i>
+        </div>
+        <div style="font-size:0.8rem;font-weight:600;color:#fff;margin-bottom:4px">No Accounts Active</div>
+        <p style="font-size:0.72rem;color:var(--text-muted);line-height:1.45">Type or paste call notes in chat. DealMind automatically detects and onboards accounts into this pipeline.</p>
       </div>
     `;
     return;
@@ -1197,6 +1192,10 @@ function selectDeal(id) {
     const arrEl = document.getElementById('top-deal-arr');
     arrEl.style.display = 'inline';
     arrEl.textContent = `$${d.arr.toLocaleString()} ARR`;
+  } else {
+    document.getElementById('top-deal-title').textContent = 'Bespoke Workspace (No Active Account)';
+    const arrEl = document.getElementById('top-deal-arr');
+    arrEl.style.display = 'none';
   }
 }
 
@@ -1243,29 +1242,39 @@ async function handleOnboardSubmit(e) {
     closeOnboardModal();
     await fetchDeals();
     selectDeal(newDeal.id);
-    alert(`Account ${newDeal.name} onboarded! Dedicated Hindsight memory bank initialized.`);
   } catch(err) {
     alert('Failed to onboard account: ' + err.message);
   }
 }
 
 function handleStarterAction(type) {
-  if (!activeDealId) {
-    alert("Please onboard or select an active account first so DealMind can ground the analysis in that client's specific memory bank.");
-    openOnboardModal();
-    return;
-  }
   const d = deals.find(x => x.id === activeDealId);
-  const accountName = d ? d.name : "this account";
+  const accountName = d ? d.name : null;
 
   if (type === 'brief') {
-    runStarter(`Generate a pre-call strategic executive briefing for our upcoming call with ${accountName}. Synthesize all active stakeholder objections, compliance constraints, and budget limits.`);
+    if (accountName) {
+      runStarter(`Generate a pre-call strategic executive briefing for our upcoming call with ${accountName}. Synthesize all active stakeholder objections, compliance constraints, and budget limits.`);
+    } else {
+      runStarter(`Generate a pre-call strategic executive briefing for an enterprise deal. Notes: Meeting with Acme Corp, CTO David wants SOC2 and budget is $75k ARR. Synthesize our strategy.`);
+    }
   } else if (type === 'pricing') {
-    runStarter(`What is the optimal pricing and contract quote strategy for ${accountName} under known stakeholder budget limits?`);
+    if (accountName) {
+      runStarter(`What is the optimal pricing and contract quote strategy for ${accountName} under known stakeholder budget limits?`);
+    } else {
+      runStarter(`Calculate the optimal ARR pricing and packaging strategy for an enterprise deal with an estimated $60k departmental budget limit.`);
+    }
   } else if (type === 'risks') {
-    runStarter(`What are the active deal risks, objections, and technical blockers recorded for ${accountName}?`);
+    if (accountName) {
+      runStarter(`What are the active deal risks, objections, and technical blockers recorded for ${accountName}?`);
+    } else {
+      runStarter(`What are the fatal deal blockers, compliance hurdles, and competitor displacement risks we need to guard against in enterprise sales cycles?`);
+    }
   } else if (type === 'email') {
-    runStarter(`Draft a tailored executive follow-up email for ${accountName} addressing all known stakeholder constraints with grounded citations.`);
+    if (accountName) {
+      runStarter(`Draft a tailored executive follow-up email for ${accountName} addressing all known stakeholder constraints with grounded citations.`);
+    } else {
+      runStarter(`Draft an executive follow-up email for an enterprise prospect addressing custom VPC deployment, direct-approval threshold, and implementation timeline.`);
+    }
   }
 }
 
@@ -1339,6 +1348,14 @@ async function executeQuery(text) {
     });
     const data = await res.json();
     removeThinkingState(thinkingId);
+    
+    // Automatic Account Onboarding Hook
+    if (data.new_deal) {
+      deals.unshift(data.new_deal);
+      document.getElementById('deal-count-badge').textContent = deals.length;
+      selectDeal(data.new_deal.id);
+    }
+    
     appendAssistantResponse(data);
   } catch (err) {
     removeThinkingState(thinkingId);
