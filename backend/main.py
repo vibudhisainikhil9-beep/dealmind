@@ -489,7 +489,8 @@ async def catch_all_debug(full_path: str, request: Request):
     return {
         "status": "online",
         "full_path": full_path,
-        "request_path": request.url.path
+        "request_path": request.url.path,
+        "headers": dict(request.headers)
     }
 
 if __name__ == "__main__":
