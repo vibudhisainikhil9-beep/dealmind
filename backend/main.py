@@ -3,7 +3,7 @@ import time
 import json
 import uuid
 from typing import List, Optional, Dict, Any
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
@@ -466,20 +466,30 @@ def serve_app():
             return FileResponse(f)
     return serve_index()
 
-# Catch-all debug route for serverless path resolution
+# Catch-all route for serverless path resolution
 @app.api_route("/{full_path:path}", methods=["GET", "POST", "PUT", "DELETE"])
-def catch_all_debug(full_path: str, request: Request):
+async def catch_all_debug(full_path: str, request: Request):
     path = request.url.path.strip("/")
-    # Map common routes if path arrived with variations
     if path.endswith("deals"):
+        if request.method == "POST":
+            body = await request.json()
+            return create_deal(CreateDealRequest(**body))
         return get_deals()
+    elif path.endswith("retain"):
+        body = await request.json()
+        return retain_memory_note(RetainNoteRequest(**body))
     elif path.endswith("memories"):
         return get_memories()
+    elif path.endswith("chat"):
+        body = await request.json()
+        return deal_copilot_chat(ChatQueryRequest(**body))
+    elif path.endswith("config"):
+        body = await request.json()
+        return update_config(ConfigRequest(**body))
     return {
-        "detail": "Path resolution",
+        "status": "online",
         "full_path": full_path,
-        "request_path": request.url.path,
-        "scope_path": request.scope.get("path")
+        "request_path": request.url.path
     }
 
 if __name__ == "__main__":
