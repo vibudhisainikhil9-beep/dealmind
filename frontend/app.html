@@ -1,35 +1,33 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DealMind Console — Autonomous Deal Intelligence</title>
+<title>DealMind — Enterprise Intelligence</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
 :root {
-  --bg-dark: #0A0A0F;
-  --bg-sidebar: #0E0E15;
-  --bg-chat: #12121A;
-  --card-bg: rgba(255, 255, 255, 0.04);
-  --card-border: rgba(255, 255, 255, 0.08);
-  --text-main: #F5F5F7;
-  --text-muted: #8E8EA0;
-  --primary: #6366F1;
-  --accent: #22D3EE;
+  --bg-main: #131314;
+  --bg-sidebar: #1E1F20;
+  --bg-input: #1E1F20;
+  --bg-hover: #2D2E31;
+  --text-main: #E3E3E3;
+  --text-sub: #C4C7C5;
+  --text-muted: #8E918F;
+  --gemini-sparkle: linear-gradient(135deg, #4285F4 0%, #9B72CB 50%, #D96570 100%);
   --green: #10B981;
-  --danger: #EF4444;
-  --amber: #F59E0B;
-  --font-head: 'Manrope', system-ui, sans-serif;
-  --font-body: 'Inter', system-ui, sans-serif;
+  --blue: #4285F4;
+  --border: rgba(255, 255, 255, 0.08);
+  --font-sans: 'Google Sans', 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-  font-family: var(--font-body);
-  background: var(--bg-dark);
+  font-family: var(--font-sans);
+  background: var(--bg-main);
   color: var(--text-main);
   height: 100vh;
   display: flex;
@@ -37,610 +35,495 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ============ SIDEBAR (ChatGPT Style) ============ */
+/* ============ GEMINI SIDEBAR ============ */
 .sidebar {
-  width: 300px;
+  width: 260px;
   background: var(--bg-sidebar);
-  border-right: 1px solid var(--card-border);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  transition: transform 0.25s ease;
   z-index: 50;
+  border-right: 1px solid var(--border);
 }
-.sidebar-header {
-  padding: 16px 18px;
-  border-bottom: 1px solid var(--card-border);
+.sidebar-top {
+  padding: 16px 16px 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-.brand {
+.brand-gemini {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-family: var(--font-head);
-  font-weight: 800;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
+  font-weight: 500;
   color: var(--text-main);
   text-decoration: none;
 }
-.brand-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #10B981, #22D3EE);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #051a14;
-  font-size: 0.85rem;
-  font-weight: 900;
+.sparkle-icon {
+  width: 22px;
+  height: 22px;
+  position: relative;
+  display: inline-block;
 }
-.back-link {
-  font-size: 0.76rem;
-  color: var(--text-muted);
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 8px;
-  border-radius: 6px;
-  border: 1px solid var(--card-border);
-  transition: all 0.2s;
-}
-.back-link:hover { color: var(--text-main); background: rgba(255,255,255,0.05); }
+.sparkle-icon svg { width: 100%; height: 100%; }
 
-.sidebar-actions { padding: 14px 16px 8px; }
-.btn-new-deal {
-  width: 100%;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--card-border);
-  color: var(--text-main);
-  font-weight: 600;
-  font-size: 0.85rem;
+.sidebar-icons {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 12px;
+  color: var(--text-sub);
+  font-size: 0.95rem;
+}
+.sidebar-icon-btn {
+  background: none;
+  border: none;
+  color: var(--text-sub);
   cursor: pointer;
-  transition: all 0.2s;
+  padding: 6px;
+  border-radius: 50%;
+  transition: background 0.2s;
 }
-.btn-new-deal:hover {
-  background: rgba(255,255,255,0.09);
-  border-color: rgba(255,255,255,0.18);
-}
+.sidebar-icon-btn:hover { background: var(--bg-hover); color: #fff; }
 
-.pipeline-label {
-  padding: 14px 18px 6px;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  font-weight: 700;
+.btn-new-chat {
+  margin: 12px 14px;
+  background: #282A2D;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 18px;
   display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-main);
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-new-chat:hover { background: var(--bg-hover); }
+
+.nav-group {
+  padding: 0 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  color: var(--text-sub);
+  font-size: 0.86rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.nav-item:hover { background: var(--bg-hover); color: var(--text-main); }
+.nav-item.active { background: #282A2D; color: #fff; }
+.nav-item i { width: 18px; font-size: 0.95rem; text-align: center; }
+
+.section-divider {
+  padding: 16px 16px 6px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
   justify-content: space-between;
 }
 
-.deals-list {
+.history-list {
   flex: 1;
   overflow-y: auto;
-  padding: 6px 12px;
+  padding: 0 10px;
 }
-.deal-item {
-  padding: 11px 12px;
-  border-radius: 10px;
-  margin-bottom: 6px;
-  cursor: pointer;
-  border: 1px solid transparent;
-  transition: all 0.15s;
-  background: rgba(255,255,255,0.015);
-}
-.deal-item:hover {
-  background: rgba(255,255,255,0.04);
-  border-color: rgba(255,255,255,0.07);
-}
-.deal-item.active {
-  background: rgba(16, 185, 129, 0.08);
-  border-color: rgba(16, 185, 129, 0.35);
-}
-.deal-item-header {
+.history-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
-}
-.deal-item-name {
-  font-weight: 600;
-  font-size: 0.88rem;
-  color: var(--text-main);
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  color: var(--text-sub);
+  cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 175px;
+  margin-bottom: 2px;
+  transition: background 0.15s;
 }
-.deal-item-arr {
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--green);
-}
-.deal-item-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.72rem;
-}
-.badge-stage {
-  padding: 2px 7px;
-  border-radius: 99px;
-  font-size: 0.68rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-.stage-negotiation { background: rgba(16, 185, 129, 0.15); color: #34d399; }
-.stage-proposal { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
-.stage-discovery { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; }
+.history-item:hover { background: var(--bg-hover); color: var(--text-main); }
+.history-item.active { background: #282A2D; color: #fff; font-weight: 500; }
+.history-item span { overflow: hidden; text-overflow: ellipsis; }
+.history-badge { font-family: var(--font-mono); font-size: 0.72rem; color: var(--green); margin-left: 6px; }
 
-.health-track {
-  width: 60px;
-  height: 4px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 99px;
-  overflow: hidden;
-}
-.health-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #10B981, #22D3EE);
-}
-
-.sidebar-footer {
-  padding: 14px 16px;
-  border-top: 1px solid var(--card-border);
+/* User Profile Footer (Exact Gemini Style) */
+.sidebar-user {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 0.78rem;
 }
-.hindsight-status {
+.user-info-box {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: var(--text-muted);
+  gap: 10px;
+  text-decoration: none;
 }
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--green);
-  box-shadow: 0 0 8px var(--green);
-}
-.btn-icon-settings {
-  background: none;
-  border: 1px solid var(--card-border);
-  color: var(--text-muted);
+.user-avatar {
   width: 32px;
   height: 32px;
-  border-radius: 8px;
-  cursor: pointer;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10B981, #3B82F6);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: #fff;
 }
-.btn-icon-settings:hover {
-  color: var(--text-main);
-  background: rgba(255,255,255,0.06);
-}
+.user-details { display: flex; flex-direction: column; }
+.user-name { font-size: 0.84rem; font-weight: 500; color: var(--text-main); }
+.user-plan { font-size: 0.72rem; color: #A8C7FA; }
 
-/* ============ MAIN CHAT CONTAINER ============ */
-.main-wrapper {
+/* ============ MAIN VIEWPORT ============ */
+.main-stage {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--bg-chat);
   position: relative;
+  background: var(--bg-main);
   overflow: hidden;
 }
 
-/* Chat Header */
-.chat-header {
-  height: 64px;
-  border-bottom: 1px solid var(--card-border);
+/* Warm ambient glowing radial background like Gemini */
+.ambient-glow {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 680px;
+  height: 480px;
+  background: radial-gradient(ellipse at center, rgba(234, 179, 8, 0.13) 0%, rgba(245, 158, 11, 0.05) 40%, transparent 75%);
+  pointer-events: none;
+  filter: blur(60px);
+  z-index: 1;
+  transition: opacity 0.5s ease;
+}
+
+.top-bar {
+  height: 56px;
   padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(14, 14, 21, 0.85);
-  backdrop-filter: blur(12px);
   z-index: 10;
 }
-.deal-active-info {
+.deal-selector-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.82rem;
+  color: var(--text-main);
+}
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.pill-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--text-main);
+  background: #282A2D;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.pill-btn:hover { background: var(--bg-hover); }
+
+/* ============ GEMINI HOME STATE (Hero Center) ============ */
+.gemini-home {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24px 60px;
+  position: relative;
+  z-index: 10;
+}
+.gemini-sparkle-center {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 24px;
+  animation: floatSparkle 3s ease-in-out infinite;
+}
+@keyframes floatSparkle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.gemini-greeting {
+  font-size: 2.5rem;
+  font-weight: 500;
+  margin-bottom: 32px;
+  text-align: center;
+  letter-spacing: -0.02em;
+  color: #ECECF1;
+}
+.gemini-greeting span {
+  background: linear-gradient(135deg, #10B981, #22D3EE);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* The Iconic Gemini Pill Search Box */
+.gemini-input-pill-container {
+  width: min(720px, 100%);
+  position: relative;
+  margin-bottom: 16px;
+}
+.gemini-input-pill {
+  background: #1E1F20;
+  border-radius: 999px;
+  padding: 14px 20px 14px 22px;
   display: flex;
   align-items: center;
   gap: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  transition: border-color 0.2s, background 0.2s;
 }
-.deal-title {
-  font-family: var(--font-head);
-  font-size: 1.05rem;
-  font-weight: 700;
+.gemini-input-pill:focus-within {
+  border-color: rgba(66, 133, 244, 0.6);
+  background: #232528;
+}
+.gemini-plus-btn {
+  color: var(--text-sub);
+  background: none;
+  border: none;
+  font-size: 1.15rem;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 10px;
 }
-.deal-stakeholders {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  max-width: 380px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.workspace-tabs {
-  display: flex;
-  background: rgba(255, 255, 255, 0.04);
-  padding: 4px;
-  border-radius: 10px;
-  border: 1px solid var(--card-border);
-  gap: 2px;
-}
-.tab-btn {
-  padding: 6px 14px;
-  border-radius: 8px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  border: none;
+.gemini-input-field {
+  flex: 1;
   background: transparent;
-  cursor: pointer;
-  transition: all 0.2s;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+}
+.gemini-input-field::placeholder { color: #8E918F; }
+
+.model-pill-selector {
   display: flex;
   align-items: center;
   gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  font-size: 0.78rem;
+  color: #E3E3E3;
+  cursor: pointer;
+  user-select: none;
 }
-.tab-btn:hover { color: var(--text-main); }
-.tab-btn.active {
-  background: rgba(16, 185, 129, 0.15);
-  color: var(--green);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-}
+.model-pill-selector i { font-size: 0.65rem; color: var(--text-muted); }
 
-.memory-toggle-wrap {
+.gemini-mic-btn {
+  color: var(--text-sub);
+  background: none;
+  border: none;
+  font-size: 1.05rem;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: rgba(255,255,255,0.03);
-  padding: 6px 12px;
-  border-radius: 99px;
-  border: 1px solid var(--card-border);
+  padding: 4px;
 }
-.toggle-switch {
-  position: relative;
-  display: inline-block;
-  width: 36px;
-  height: 20px;
-}
-.toggle-switch input { opacity: 0; width: 0; height: 0; }
-.toggle-slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #333;
-  transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 99px;
-}
-.toggle-slider:before {
-  position: absolute;
-  content: "";
-  height: 14px;
-  width: 14px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+.gemini-send-btn {
+  background: #10B981;
+  color: #051a14;
+  border: none;
   border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s;
 }
-input:checked + .toggle-slider { background-color: var(--green); }
-input:checked + .toggle-slider:before { transform: translateX(16px); }
+.gemini-send-btn:hover { transform: scale(1.08); }
 
-.memory-status-label {
-  font-size: 0.76rem;
-  font-weight: 600;
-  color: var(--green);
+/* Mode Switchers: Chat / Task / Reflect */
+.mode-switch-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
 }
-.memory-status-label.off { color: var(--danger); }
+.mode-pill {
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  color: var(--text-sub);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.mode-pill.active {
+  background: #282A2D;
+  color: #fff;
+  font-weight: 500;
+}
 
-/* Tab Content Areas */
-.tab-view {
+/* Starter Prompts (Gemini Style) */
+.gemini-starter-prompts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(720px, 100%);
+}
+.starter-pill-btn {
+  background: none;
+  border: none;
+  color: #C4C7C5;
+  font-size: 0.92rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+.starter-pill-btn:hover { background: rgba(255,255,255,0.04); color: #fff; }
+.starter-pill-btn i { color: #8E918F; font-size: 0.88rem; width: 20px; text-align: center; }
+
+/* ============ ACTIVE CHAT STREAM (When conversation starts) ============ */
+.gemini-chat-stream {
   flex: 1;
   display: none;
   flex-direction: column;
   overflow: hidden;
-  height: calc(100vh - 64px);
+  position: relative;
+  z-index: 10;
 }
-.tab-view.active { display: flex; }
+.gemini-chat-stream.active { display: flex; }
 
-/* ============ COPILOT CHAT STREAM (ChatGPT Clean Style) ============ */
-.messages-container {
+.chat-history-container {
   flex: 1;
   overflow-y: auto;
-  padding: 24px 0;
-  display: flex;
-  flex-direction: column;
+  padding: 24px 0 100px;
 }
-.message-row {
+.chat-msg-row {
   width: 100%;
   padding: 16px 24px;
   display: flex;
   justify-content: center;
 }
-.message-row.user {
-  background: transparent;
-}
-.message-row.assistant {
-  background: rgba(255, 255, 255, 0.015);
-  border-top: 1px solid rgba(255, 255, 255, 0.03);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-}
-.message-content {
+.chat-msg-inner {
   width: 100%;
-  max-width: 820px;
+  max-width: 760px;
   display: flex;
-  gap: 16px;
+  gap: 18px;
 }
-.avatar {
+.msg-avatar-gemini {
   width: 32px;
   height: 32px;
-  border-radius: 8px;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.msg-avatar-user {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #3B82F6;
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.85rem;
 }
-.avatar.bot {
-  background: linear-gradient(135deg, #10B981, #22D3EE);
-  color: #051a14;
-  font-weight: 900;
-}
-.avatar.user {
-  background: #3B82F6;
-  color: white;
-}
-.message-body {
+.msg-text-content {
   flex: 1;
-  font-size: 0.94rem;
-  line-height: 1.65;
+  font-size: 0.96rem;
+  line-height: 1.68;
   color: #ECECF1;
 }
-.message-body p { margin-bottom: 10px; }
-.message-body strong { color: white; font-weight: 600; }
-.message-body ul, .message-body ol { margin: 8px 0 12px 20px; }
-.message-body li { margin-bottom: 6px; }
+.msg-text-content p { margin-bottom: 12px; }
+.msg-text-content ul, .msg-text-content ol { margin: 8px 0 14px 22px; }
+.msg-text-content li { margin-bottom: 6px; }
+.msg-text-content strong { color: #fff; font-weight: 600; }
 
-/* Memory Traces Box (Visual Proof of Recall) */
-.memory-recall-panel {
-  margin-top: 14px;
-  background: rgba(16, 185, 129, 0.04);
-  border: 1px solid rgba(16, 185, 129, 0.2);
-  border-radius: 10px;
-  padding: 12px 14px;
+/* Memory Citation Box (Clean Google Style) */
+.hindsight-proof-box {
+  margin-top: 16px;
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 12px;
+  padding: 14px 18px;
 }
-.recall-panel-header {
-  font-size: 0.72rem;
+.proof-box-header {
+  font-size: 0.74rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--green);
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 8px;
-}
-.memory-chip-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.memory-chip {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-left: 3px solid var(--green);
-  border-radius: 6px;
-  padding: 8px 10px;
-  font-size: 0.8rem;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-.memory-chip-meta {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.7rem;
-  color: var(--text-muted);
-}
-.memory-chip-id {
-  font-family: var(--font-mono);
-  color: var(--accent);
-  font-weight: 600;
-}
-.memory-chip-content {
-  color: #D1D5DB;
-  font-size: 0.82rem;
-}
-
-.stateless-warning-box {
-  margin-top: 12px;
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 0.78rem;
-  color: #F87171;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Chat Input Bar */
-.chat-input-wrapper {
-  padding: 0 24px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: linear-gradient(180deg, transparent, var(--bg-chat) 30%);
-}
-.quick-chips {
-  max-width: 820px;
-  width: 100%;
-  display: flex;
   gap: 8px;
   margin-bottom: 10px;
-  overflow-x: auto;
-  padding-bottom: 4px;
 }
-.quick-chip {
-  padding: 6px 12px;
-  border-radius: 99px;
-  font-size: 0.76rem;
-  font-weight: 600;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--card-border);
-  color: var(--text-muted);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.quick-chip:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text-main);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.input-box {
-  max-width: 820px;
-  width: 100%;
-  background: #181822;
-  border: 1px solid var(--card-border);
-  border-radius: 14px;
-  padding: 10px 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-  transition: border-color 0.2s;
-}
-.input-box:focus-within {
-  border-color: rgba(16, 185, 129, 0.4);
-}
-.input-textarea {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--text-main);
-  font-family: var(--font-body);
-  font-size: 0.92rem;
-  resize: none;
-  max-height: 120px;
-}
-.input-textarea::placeholder { color: #5B5B6E; }
-.btn-send {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  background: var(--green);
-  border: none;
-  color: #051a14;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  transition: transform 0.15s, opacity 0.15s;
-}
-.btn-send:hover { transform: scale(1.05); }
-.btn-send:disabled { opacity: 0.4; cursor: not-allowed; }
-
-.input-disclaimer {
-  font-size: 0.7rem;
-  color: #555566;
-  margin-top: 8px;
-}
-
-/* ============ OTHER TABS (Retain, Bank, Reflect) ============ */
-.panel-tab-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 32px 24px;
-  display: flex;
-  justify-content: center;
-}
-.panel-tab-inner {
-  width: 100%;
-  max-width: 820px;
-}
-
-.card-box {
-  background: rgba(255,255,255,0.025);
-  border: 1px solid var(--card-border);
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 20px;
-}
-.card-box h3 {
-  font-family: var(--font-head);
-  font-size: 1.15rem;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.card-box p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px; }
-
-.form-group { margin-bottom: 14px; }
-.form-group label {
-  display: block;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: #c4c4d4;
+.proof-item {
+  background: rgba(255, 255, 255, 0.025);
+  border-left: 3px solid var(--green);
+  border-radius: 6px;
+  padding: 8px 12px;
   margin-bottom: 6px;
+  font-size: 0.82rem;
 }
-.form-control {
-  width: 100%;
-  background: #14141E;
-  border: 1px solid var(--card-border);
-  border-radius: 8px;
-  padding: 10px 12px;
-  color: var(--text-main);
-  font-family: var(--font-body);
-  font-size: 0.88rem;
-  outline: none;
+.proof-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-bottom: 3px;
 }
-.form-control:focus { border-color: var(--green); }
 
-.btn-primary {
-  background: linear-gradient(135deg, #10B981, #22D3EE);
-  color: #051a14;
-  font-weight: 700;
-  padding: 10px 18px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: transform 0.15s;
+/* Sticky Input Bar at Bottom during active chat */
+.sticky-bottom-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0 24px 20px;
+  display: flex;
+  justify-content: center;
+  background: linear-gradient(180deg, transparent 0%, var(--bg-main) 40%);
 }
-.btn-primary:hover { transform: translateY(-1px); }
 
-/* Modal */
+/* Modals */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -654,286 +537,241 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
 .modal-overlay.open { display: flex; }
 .modal-card {
   width: min(480px, 90%);
-  background: #12121A;
-  border: 1px solid var(--card-border);
+  background: #1E1F20;
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 24px;
 }
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
+.form-input {
+  width: 100%;
+  background: #131314;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  outline: none;
+  margin-top: 6px;
+  margin-bottom: 14px;
 }
-
-/* Animations */
-@keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-.thinking-pulse { animation: pulse 1.2s infinite; }
+.form-input:focus { border-color: var(--green); }
 </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
+<!-- GEMINI SIDEBAR -->
 <aside class="sidebar">
-  <div class="sidebar-header">
-    <a href="/" class="brand">
-      <div class="brand-icon"><i class="fa-solid fa-brain"></i></div>
+  <div class="sidebar-top">
+    <a href="/" class="brand-gemini">
+      <span class="sparkle-icon">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4L12 0Z" fill="url(#gemini_grad)"/>
+          <defs>
+            <linearGradient id="gemini_grad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#4285F4"/>
+              <stop offset="0.5" stop-color="#9B72CB"/>
+              <stop offset="1" stop-color="#D96570"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </span>
       <span>DealMind</span>
     </a>
-    <a href="/" class="back-link">
-      <i class="fa-solid fa-arrow-left"></i> Home
-    </a>
-  </div>
-
-  <div class="sidebar-actions">
-    <button class="btn-new-deal" onclick="openNewDealModal()">
-      <span><i class="fa-solid fa-plus"></i> New Deal Account</span>
-      <kbd style="font-family:var(--font-mono);font-size:0.7rem;background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px">N</kbd>
-    </button>
-  </div>
-
-  <div class="pipeline-label">
-    <span>Active Accounts</span>
-    <span id="deals-count">4</span>
-  </div>
-
-  <div class="deals-list" id="deals-container">
-    <!-- Rendered dynamically -->
-  </div>
-
-  <div class="sidebar-footer">
-    <div class="hindsight-status">
-      <div class="status-dot"></div>
-      <span>Hindsight Cloud</span>
+    <div class="sidebar-icons">
+      <button class="sidebar-icon-btn" onclick="openSearch()" title="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
+      <button class="sidebar-icon-btn" onclick="toggleSidebar()" title="Collapse"><i class="fa-solid fa-bars"></i></button>
     </div>
-    <button class="btn-icon-settings" onclick="openSettingsModal()" title="Hindsight Settings">
+  </div>
+
+  <button class="btn-new-chat" onclick="startFreshChat()">
+    <i class="fa-solid fa-pen-to-square"></i>
+    <span>New deal chat</span>
+  </button>
+
+  <div class="nav-group">
+    <a class="nav-item active" onclick="startFreshChat()"><i class="fa-solid fa-brain"></i> Memory Bank</a>
+    <a class="nav-item" onclick="openRetainModal()"><i class="fa-solid fa-file-pen"></i> Retain Notes</a>
+    <a class="nav-item" onclick="openReflectReport()"><i class="fa-solid fa-chart-line"></i> Reflect Insights</a>
+    <a class="nav-item" href="/" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> Marketing Site</a>
+  </div>
+
+  <div class="section-divider">
+    <span>ACTIVE PIPELINE DEALS</span>
+    <span id="deal-count-badge" style="font-family:var(--font-mono);color:var(--green)">4</span>
+  </div>
+
+  <div class="history-list" id="deals-sidebar-list">
+    <!-- Populated dynamically with active deals -->
+  </div>
+
+  <!-- User Profile at Bottom (Matching Gemini exact user card) -->
+  <div class="sidebar-user">
+    <div class="user-info-box">
+      <div class="user-avatar">SV</div>
+      <div class="user-details">
+        <span class="user-name">sainikhil vibudhi</span>
+        <span class="user-plan">DealMind Enterprise Pro</span>
+      </div>
+    </div>
+    <button class="sidebar-icon-btn" onclick="openSettings()" title="Settings">
       <i class="fa-solid fa-gear"></i>
     </button>
   </div>
 </aside>
 
-<!-- MAIN WORKSPACE -->
-<main class="main-wrapper">
-  <!-- Header -->
-  <header class="chat-header">
-    <div class="deal-active-info">
-      <div>
-        <div class="deal-title">
-          <span id="header-deal-name">Zerodha (B2B SaaS Upgrade)</span>
-          <span class="badge-stage stage-negotiation" id="header-deal-stage">Negotiation</span>
-          <span style="font-family:var(--font-mono);color:var(--green);font-size:0.85rem;" id="header-deal-arr">$44,500 ARR</span>
-        </div>
-        <div class="deal-stakeholders" id="header-deal-stakeholders">
-          Kiran Nair (CTO), Priya Menon (Head of Procurement)
-        </div>
-      </div>
+<!-- MAIN WORKSPACE STAGE -->
+<main class="main-stage">
+  <div class="ambient-glow" id="ambient-glow"></div>
+
+  <!-- Top Navigation Header -->
+  <header class="top-bar">
+    <div class="deal-selector-pill">
+      <span style="color:var(--text-muted)">Deal Context:</span>
+      <strong id="top-deal-title" style="color:#fff">Zerodha (B2B SaaS Upgrade)</strong>
+      <span id="top-deal-arr" style="font-family:var(--font-mono);color:var(--green);margin-left:6px">$44,500 ARR</span>
     </div>
 
-    <!-- Center Navigation Tabs -->
-    <div class="workspace-tabs">
-      <button class="tab-btn active" onclick="switchTab('copilot')">
-        <i class="fa-solid fa-wand-magic-sparkles"></i> AI Copilot
+    <div class="top-actions">
+      <button class="pill-btn" onclick="toggleMemoryEngine()" id="engine-toggle-btn">
+        <i class="fa-solid fa-circle-check" style="color:var(--green)"></i>
+        <span id="engine-status-text">Hindsight Memory Active</span>
       </button>
-      <button class="tab-btn" onclick="switchTab('retain')">
-        <i class="fa-solid fa-file-pen"></i> Retain Note
-      </button>
-      <button class="tab-btn" onclick="switchTab('bank')">
-        <i class="fa-solid fa-database"></i> Memory Bank
-      </button>
-      <button class="tab-btn" onclick="switchTab('reflect')">
-        <i class="fa-solid fa-chart-line"></i> Reflect
-      </button>
-    </div>
-
-    <!-- Memory ON / OFF Switch -->
-    <div class="memory-toggle-wrap">
-      <span class="memory-status-label" id="toggle-label">Hindsight Memory Active</span>
-      <label class="toggle-switch">
-        <input type="checkbox" id="memory-toggle" checked onchange="handleMemoryToggle()">
-        <span class="toggle-slider"></span>
-      </label>
+      <a href="/" class="pill-btn"><i class="fa-solid fa-house"></i> Home</a>
     </div>
   </header>
 
-  <!-- TAB 1: COPILOT CHAT STREAM -->
-  <div class="tab-view active" id="tab-copilot">
-    <div class="messages-container" id="chat-messages">
-      <!-- Default Bot Welcome -->
-      <div class="message-row assistant">
-        <div class="message-content">
-          <div class="avatar bot"><i class="fa-solid fa-brain"></i></div>
-          <div class="message-body">
-            <p><strong>DealMind Copilot loaded with Vectorize Hindsight persistent memory.</strong></p>
-            <p>I have indexed all multi-stakeholder interactions, architecture constraints, and budget ceilings for this account. Every recommendation I generate cites the exact episodic memory unit from Hindsight.</p>
-            <p style="color:var(--text-muted);font-size:0.82rem;">Click a quick playbook action below or ask any deal question.</p>
+  <!-- GEMINI HOME HERO VIEW (Icon + Greeting + Input Pill + Starters) -->
+  <section class="gemini-home" id="gemini-home-screen">
+    <!-- Center Sparkle Icon -->
+    <div class="gemini-sparkle-center">
+      <svg viewBox="0 0 24 24" fill="none" style="width:100%;height:100%">
+        <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4L12 0Z" fill="url(#center_sparkle)"/>
+        <defs>
+          <linearGradient id="center_sparkle" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#4285F4"/>
+            <stop offset="0.4" stop-color="#9B72CB"/>
+            <stop offset="0.8" stop-color="#F59E0B"/>
+            <stop offset="1" stop-color="#10B981"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+
+    <!-- Clean Greeting -->
+    <h1 class="gemini-greeting">
+      Where should we close deals today, <span>sainikhil</span>?
+    </h1>
+
+    <!-- The Iconic Pill Input Bar -->
+    <div class="gemini-input-pill-container">
+      <div class="gemini-input-pill">
+        <button class="gemini-plus-btn" onclick="openRetainModal()" title="Retain New Note"><i class="fa-solid fa-plus"></i></button>
+        <input type="text" id="home-chat-input" class="gemini-input-field" placeholder="Ask DealMind about pricing caps, objections, SEBI/compliance rules..." onkeydown="handleInputKey(event)">
+        
+        <div class="model-pill-selector" onclick="toggleModelSelect()" title="Memory Provider">
+          <span id="model-pill-name">Hindsight-Cloud</span>
+          <i class="fa-solid fa-chevron-down"></i>
+        </div>
+
+        <button class="gemini-mic-btn" title="Voice Input"><i class="fa-solid fa-microphone"></i></button>
+        <button class="gemini-send-btn" onclick="submitHomeQuery()" title="Send"><i class="fa-solid fa-arrow-up"></i></button>
+      </div>
+    </div>
+
+    <!-- Mode Selector Pills: Chat / Reflect -->
+    <div class="mode-switch-row">
+      <button class="mode-pill active" id="mode-deal" onclick="setMode('deal')">Deal Copilot</button>
+      <button class="mode-pill" id="mode-reflect" onclick="setMode('reflect')">Reflect Intelligence</button>
+    </div>
+
+    <!-- Starter Prompts (Exact Gemini Style) -->
+    <div class="gemini-starter-prompts">
+      <button class="starter-pill-btn" onclick="runStarter('Generate a pre-call executive briefing for our upcoming call with Zerodha')">
+        <i class="fa-regular fa-file-lines"></i>
+        <span>Brief me on Zerodha constraints & stakeholder objections before our call</span>
+      </button>
+
+      <button class="starter-pill-btn" onclick="runStarter('What is the optimal pricing and quote strategy for this deal based on past budget limits?')">
+        <i class="fa-solid fa-coins"></i>
+        <span>Calculate our maximum non-blocking ARR quote under Priya Menon's budget cap</span>
+      </button>
+
+      <button class="starter-pill-btn" onclick="runStarter('What are the active deal risks, objections, and technical blockers recorded so far?')">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span>Identify fatal compliance redlines & why previous competitor was rejected</span>
+      </button>
+
+      <button class="starter-pill-btn" onclick="runStarter('Draft a tailored executive follow-up email addressing all known stakeholder constraints')">
+        <i class="fa-regular fa-paper-plane"></i>
+        <span>Draft executive follow-up email citing SEBI compliance and sub-12ms latency</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- GEMINI ACTIVE CHAT STREAM (Shown when chatting) -->
+  <section class="gemini-chat-stream" id="gemini-active-chat">
+    <div class="chat-history-container" id="stream-messages-container">
+      <!-- Injected dynamically -->
+    </div>
+
+    <!-- Sticky Bottom Input Pill during Active Chat -->
+    <div class="sticky-bottom-bar">
+      <div class="gemini-input-pill-container" style="margin-bottom:0">
+        <div class="gemini-input-pill">
+          <button class="gemini-plus-btn" onclick="openRetainModal()" title="Retain Note"><i class="fa-solid fa-plus"></i></button>
+          <input type="text" id="stream-chat-input" class="gemini-input-field" placeholder="Ask a follow-up or command DealMind..." onkeydown="handleStreamKey(event)">
+          <div class="model-pill-selector" onclick="toggleModelSelect()">
+            <span>Hindsight-Cloud</span>
+            <i class="fa-solid fa-chevron-down"></i>
           </div>
+          <button class="gemini-send-btn" onclick="submitStreamQuery()" title="Send"><i class="fa-solid fa-arrow-up"></i></button>
         </div>
       </div>
     </div>
-
-    <!-- Bottom Input Area -->
-    <div class="chat-input-wrapper">
-      <div class="quick-chips">
-        <button class="quick-chip" onclick="sendQuickPrompt('Generate a pre-call executive briefing for our upcoming call with this account')">
-          <i class="fa-solid fa-file-lines" style="color:#60a5fa"></i> Pre-Call Brief
-        </button>
-        <button class="quick-chip" onclick="sendQuickPrompt('What is the optimal pricing and quote strategy for this deal based on past budget limits?')">
-          <i class="fa-solid fa-coins" style="color:#fbbf24"></i> Pricing Negotiation Play
-        </button>
-        <button class="quick-chip" onclick="sendQuickPrompt('What are the active deal risks, objections, and technical blockers recorded so far?')">
-          <i class="fa-solid fa-triangle-exclamation" style="color:#f87171"></i> Identify Deal Risks
-        </button>
-        <button class="quick-chip" onclick="sendQuickPrompt('Draft a tailored executive follow-up email addressing all known stakeholder constraints')">
-          <i class="fa-solid fa-paper-plane" style="color:#34d399"></i> Draft Follow-up Email
-        </button>
-      </div>
-
-      <div class="input-box">
-        <textarea id="chat-input" class="input-textarea" rows="1" placeholder="Ask DealMind about pricing, objections, SEBI/compliance blockers, or draft proposals..." onkeydown="handleKey(event)"></textarea>
-        <button id="send-btn" class="btn-send" onclick="submitMessage()" title="Send Message">
-          <i class="fa-solid fa-arrow-up"></i>
-        </button>
-      </div>
-      <div class="input-disclaimer">
-        DealMind leverages Vectorize Hindsight episodic & working memory engines. All facts grounded with cited sources.
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB 2: RETAIN NOTE -->
-  <div class="tab-view" id="tab-retain">
-    <div class="panel-tab-content">
-      <div class="panel-tab-inner">
-        <div class="card-box">
-          <h3><i class="fa-solid fa-file-pen" style="color:var(--green)"></i> Retain Interaction to Hindsight</h3>
-          <p>Logged observations are instantly sent to Vectorize Hindsight Cloud via the <code>retain()</code> API, indexed with multi-strategy BM25 and dense semantic graphs.</p>
-          
-          <form onsubmit="handleRetainNote(event)">
-            <div class="form-group">
-              <label>Stakeholder / Source</label>
-              <input type="text" id="rn-stakeholder" class="form-control" placeholder="e.g. Kiran Nair (CTO)" required>
-            </div>
-            <div class="form-group">
-              <label>Category</label>
-              <select id="rn-category" class="form-control">
-                <option value="Compliance">Compliance & Security</option>
-                <option value="Pricing">Budget & Commercials</option>
-                <option value="Architecture">Infrastructure & Latency</option>
-                <option value="Decision Maker">Stakeholder Politics</option>
-                <option value="Objection">Customer Objection</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Interaction Notes / Verbatim Quote</label>
-              <textarea id="rn-content" class="form-control" rows="4" placeholder="Enter verbatim statements, budget limits, or architectural requirements discussed during the call..." required></textarea>
-            </div>
-            <button type="submit" class="btn-primary">
-              <i class="fa-solid fa-cloud-arrow-up"></i> Retain to Hindsight Cloud
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB 3: MEMORY BANK -->
-  <div class="tab-view" id="tab-bank">
-    <div class="panel-tab-content">
-      <div class="panel-tab-inner">
-        <div class="card-box">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <div>
-              <h3><i class="fa-solid fa-database" style="color:var(--accent)"></i> Persistent Memory Bank</h3>
-              <p style="margin-bottom:0">Active episodic memories grounded for this account.</p>
-            </div>
-            <button class="btn-primary" style="font-size:0.78rem;padding:6px 12px" onclick="loadMemoryBank()">
-              <i class="fa-solid fa-rotate-right"></i> Refresh
-            </button>
-          </div>
-
-          <div id="memory-bank-list" style="display:flex;flex-direction:column;gap:10px;margin-top:16px;">
-            <!-- Loaded dynamically -->
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB 4: REFLECT -->
-  <div class="tab-view" id="tab-reflect">
-    <div class="panel-tab-content">
-      <div class="panel-tab-inner">
-        <div class="card-box">
-          <h3><i class="fa-solid fa-chart-line" style="color:#A78BFA"></i> Hindsight Reflect Engine</h3>
-          <p>Runs cross-deal cognitive reflection via Hindsight's <code>reflect()</code> operation to discover patterns, recurring objections, and win/loss indicators across all accounts.</p>
-          
-          <button class="btn-primary" style="margin-bottom:20px" onclick="runReflection()">
-            <i class="fa-solid fa-brain"></i> Trigger Hindsight Reflection
-          </button>
-
-          <div id="reflection-output" style="display:none;background:#14141E;border:1px solid var(--card-border);border-radius:12px;padding:20px;">
-            <!-- Reflection content injected here -->
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  </section>
 </main>
 
-<!-- SETTINGS MODAL -->
-<div class="modal-overlay" id="settings-modal">
+<!-- RETAIN MODAL -->
+<div class="modal-overlay" id="retain-modal">
   <div class="modal-card">
-    <h3 style="font-family:var(--font-head);margin-bottom:8px"><i class="fa-solid fa-gear"></i> Hindsight Cloud Settings</h3>
-    <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:16px">Configured with your active Vectorize Hindsight API key.</p>
-    
-    <form onsubmit="saveSettings(event)">
-      <div class="form-group">
-        <label>API Key</label>
-        <input type="password" id="cfg-key" class="form-control" value="hsk_329908dc7a8f296f2771ff834b9c1864_f8a871b810eca7d4" style="font-family:var(--font-mono)">
-        <p style="font-size:0.72rem;color:var(--green);margin-top:6px"><i class="fa-solid fa-check"></i> Connected with $50 Cloud Credits (MEMHACK99)</p>
-      </div>
-      <div class="form-group">
-        <label>Hindsight Base URL</label>
-        <input type="text" id="cfg-url" class="form-control" value="https://api.hindsight.vectorize.io" style="font-family:var(--font-mono)">
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="back-link" onclick="closeSettingsModal()">Cancel</button>
-        <button type="submit" class="btn-primary">Save Configuration</button>
+    <h3 style="font-size:1.15rem;margin-bottom:8px;display:flex;align-items:center;gap:8px">
+      <i class="fa-solid fa-file-pen" style="color:var(--green)"></i> Retain Interaction Note
+    </h3>
+    <p style="font-size:0.84rem;color:var(--text-sub);margin-bottom:14px">Directly indexed into Vectorize Hindsight Cloud memory bank.</p>
+    <form onsubmit="handleRetainSubmit(event)">
+      <label style="font-size:0.78rem;color:var(--text-sub)">Stakeholder Name</label>
+      <input type="text" id="rm-stakeholder" class="form-input" placeholder="e.g. Kiran Nair (CTO)" required>
+      <label style="font-size:0.78rem;color:var(--text-sub)">Category</label>
+      <select id="rm-category" class="form-input">
+        <option value="Compliance">Compliance & Security</option>
+        <option value="Pricing">Budget & Commercials</option>
+        <option value="Architecture">Infrastructure & Latency</option>
+        <option value="Objection">Objection & Competitor</option>
+      </select>
+      <label style="font-size:0.78rem;color:var(--text-sub)">Notes / Verbatim Statement</label>
+      <textarea id="rm-content" class="form-input" rows="3" placeholder="Enter verbatim statements, budget limits, or architectural requirements..." required></textarea>
+      <div style="display:flex;justify-content:flex-end;gap:10px">
+        <button type="button" class="pill-btn" onclick="closeRetainModal()">Cancel</button>
+        <button type="submit" class="pill-btn" style="background:#10B981;color:#051a14;font-weight:600">Save to Hindsight</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- NEW DEAL MODAL -->
-<div class="modal-overlay" id="new-deal-modal">
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settings-modal">
   <div class="modal-card">
-    <h3 style="font-family:var(--font-head);margin-bottom:8px"><i class="fa-solid fa-building"></i> Add New Deal Account</h3>
-    <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:16px">Creates a new dedicated memory bank for the target enterprise account.</p>
-    
-    <form onsubmit="handleCreateDeal(event)">
-      <div class="form-group">
-        <label>Account Name</label>
-        <input type="text" id="nd-name" class="form-control" placeholder="e.g. Flipkart Enterprise Cloud" required>
-      </div>
-      <div class="form-group">
-        <label>Target ARR ($)</label>
-        <input type="number" id="nd-arr" class="form-control" placeholder="85000" required>
-      </div>
-      <div class="form-group">
-        <label>Key Stakeholders (comma separated)</label>
-        <input type="text" id="nd-stakeholders" class="form-control" placeholder="Amit Sharma (VP Eng), Sarah Lee (CFO)" required>
-      </div>
-      <div class="form-group">
-        <label>Pipeline Stage</label>
-        <select id="nd-stage" class="form-control">
-          <option value="Discovery">Discovery</option>
-          <option value="Proposal Review">Proposal Review</option>
-          <option value="Negotiation">Negotiation</option>
-        </select>
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="back-link" onclick="closeNewDealModal()">Cancel</button>
-        <button type="submit" class="btn-primary">Create Account</button>
+    <h3 style="font-size:1.15rem;margin-bottom:8px"><i class="fa-solid fa-gear"></i> Hindsight Cloud Settings</h3>
+    <p style="font-size:0.84rem;color:var(--text-sub);margin-bottom:14px">Connected with your official Vectorize Hindsight Cloud API key.</p>
+    <form onsubmit="handleSaveSettings(event)">
+      <label style="font-size:0.78rem;color:var(--text-sub)">Hindsight API Key</label>
+      <input type="password" id="cfg-key" class="form-input" value="hsk_329908dc7a8f296f2771ff834b9c1864_f8a871b810eca7d4" style="font-family:var(--font-mono)">
+      <label style="font-size:0.78rem;color:var(--text-sub)">Base URL</label>
+      <input type="text" id="cfg-url" class="form-input" value="https://api.hindsight.vectorize.io" style="font-family:var(--font-mono)">
+      <div style="display:flex;justify-content:flex-end;gap:10px">
+        <button type="button" class="pill-btn" onclick="closeSettings()">Cancel</button>
+        <button type="submit" class="pill-btn" style="background:#10B981;color:#051a14;font-weight:600">Save</button>
       </div>
     </form>
   </div>
@@ -953,97 +791,93 @@ async function fetchDeals() {
     const res = await fetch('/api/deals');
     const data = await res.json();
     deals = data.deals || [];
-    document.getElementById('deals-count').textContent = deals.length;
-    renderDeals();
+    document.getElementById('deal-count-badge').textContent = deals.length;
+    renderSidebarDeals();
     if (deals.length > 0 && !activeDealId) {
       selectDeal(deals[0].id);
     }
   } catch (err) {
-    console.error('Failed to fetch deals:', err);
+    console.error('Failed to load deals:', err);
   }
 }
 
-function renderDeals() {
-  const container = document.getElementById('deals-container');
-  container.innerHTML = deals.map(d => {
-    const stageClass = d.stage === 'Negotiation' ? 'stage-negotiation' : (d.stage === 'Proposal Review' ? 'stage-proposal' : 'stage-discovery');
-    const isActive = d.id === activeDealId ? 'active' : '';
-    return `
-      <div class="deal-item ${isActive}" onclick="selectDeal('${d.id}')">
-        <div class="deal-item-header">
-          <span class="deal-item-name">${escapeHtml(d.name)}</span>
-          <span class="deal-item-arr">$${d.arr >= 1000 ? Math.round(d.arr/1000) + 'k' : d.arr}</span>
-        </div>
-        <div class="deal-item-meta">
-          <span class="badge-stage ${stageClass}">${d.stage}</span>
-          <div class="health-track" title="Deal Health: ${d.health_score}%">
-            <div class="health-fill" style="width: ${d.health_score || 75}%"></div>
-          </div>
-        </div>
-      </div>
-    `;
-  }).join('');
+function renderSidebarDeals() {
+  const container = document.getElementById('deals-sidebar-list');
+  container.innerHTML = deals.map(d => `
+    <div class="history-item ${d.id === activeDealId ? 'active' : ''}" onclick="selectDeal('${d.id}')">
+      <span>${escapeHtml(d.name)}</span>
+      <span class="history-badge">$${Math.round(d.arr/1000)}k</span>
+    </div>
+  `).join('');
 }
 
-function selectDeal(dealId) {
-  activeDealId = dealId;
-  renderDeals();
-  const deal = deals.find(d => d.id === dealId);
-  if (deal) {
-    document.getElementById('header-deal-name').textContent = deal.name;
-    document.getElementById('header-deal-arr').textContent = `$${deal.arr.toLocaleString()} ARR`;
-    const stageEl = document.getElementById('header-deal-stage');
-    stageEl.textContent = deal.stage;
-    stageEl.className = 'badge-stage ' + (deal.stage === 'Negotiation' ? 'stage-negotiation' : (deal.stage === 'Proposal Review' ? 'stage-proposal' : 'stage-discovery'));
-    document.getElementById('header-deal-stakeholders').textContent = deal.stakeholders.join(', ');
+function selectDeal(id) {
+  activeDealId = id;
+  renderSidebarDeals();
+  const d = deals.find(x => x.id === id);
+  if (d) {
+    document.getElementById('top-deal-title').textContent = d.name;
+    document.getElementById('top-deal-arr').textContent = `$${d.arr.toLocaleString()} ARR`;
   }
 }
 
-function handleMemoryToggle() {
-  const toggle = document.getElementById('memory-toggle');
-  useMemory = toggle.checked;
-  const label = document.getElementById('toggle-label');
+function toggleMemoryEngine() {
+  useMemory = !useMemory;
+  const btn = document.getElementById('engine-toggle-btn');
+  const txt = document.getElementById('engine-status-text');
   if (useMemory) {
-    label.textContent = "Hindsight Memory Active";
-    label.className = "memory-status-label";
+    btn.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--green)"></i> <span id="engine-status-text">Hindsight Memory Active</span>';
   } else {
-    label.textContent = "Stateless (Memory Disabled)";
-    label.className = "memory-status-label off";
+    btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444"></i> <span id="engine-status-text" style="color:#ef4444">Stateless (Memory Disabled)</span>';
   }
 }
 
-function switchTab(tabId) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
-  
-  event.currentTarget.classList.add('active');
-  document.getElementById(`tab-${tabId}`).classList.add('active');
-
-  if (tabId === 'bank') loadMemoryBank();
+function startFreshChat() {
+  document.getElementById('gemini-home-screen').style.display = 'flex';
+  document.getElementById('gemini-active-chat').classList.remove('active');
+  document.getElementById('ambient-glow').style.opacity = '1';
+  document.getElementById('stream-messages-container').innerHTML = '';
 }
 
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    submitMessage();
-  }
+function runStarter(promptText) {
+  switchToChatStream();
+  executeQuery(promptText);
 }
 
-function sendQuickPrompt(promptText) {
-  document.getElementById('chat-input').value = promptText;
-  submitMessage();
-}
-
-async function submitMessage() {
-  const input = document.getElementById('chat-input');
+function submitHomeQuery() {
+  const input = document.getElementById('home-chat-input');
   const text = input.value.trim();
   if (!text) return;
-
   input.value = '';
-  appendUserMessage(text);
+  switchToChatStream();
+  executeQuery(text);
+}
 
-  // Show thinking state
-  const thinkingId = appendThinking();
+function submitStreamQuery() {
+  const input = document.getElementById('stream-chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  executeQuery(text);
+}
+
+function handleInputKey(e) {
+  if (e.key === 'Enter') submitHomeQuery();
+}
+
+function handleStreamKey(e) {
+  if (e.key === 'Enter') submitStreamQuery();
+}
+
+function switchToChatStream() {
+  document.getElementById('gemini-home-screen').style.display = 'none';
+  document.getElementById('gemini-active-chat').classList.add('active');
+  document.getElementById('ambient-glow').style.opacity = '0.35';
+}
+
+async function executeQuery(text) {
+  appendUserMessage(text);
+  const thinkingId = appendThinkingState();
 
   try {
     const res = await fetch('/api/chat', {
@@ -1056,221 +890,145 @@ async function submitMessage() {
       })
     });
     const data = await res.json();
-    removeThinking(thinkingId);
-    appendAssistantMessage(data);
+    removeThinkingState(thinkingId);
+    appendAssistantResponse(data);
   } catch (err) {
-    removeThinking(thinkingId);
-    appendErrorMessage("Failed to connect to DealMind intelligence engine: " + err.message);
+    removeThinkingState(thinkingId);
+    appendAssistantResponse({
+      reply: "Failed to connect to DealMind intelligence engine: " + err.message,
+      recalled_memories: []
+    });
   }
 }
 
 function appendUserMessage(text) {
-  const container = document.getElementById('chat-messages');
+  const container = document.getElementById('stream-messages-container');
   const row = document.createElement('div');
-  row.className = 'message-row user';
+  row.className = 'chat-msg-row';
   row.innerHTML = `
-    <div class="message-content">
-      <div class="avatar user"><i class="fa-solid fa-user"></i></div>
-      <div class="message-body">
+    <div class="chat-msg-inner">
+      <div class="msg-avatar-user">SV</div>
+      <div class="msg-text-content">
         <p>${escapeHtml(text)}</p>
       </div>
     </div>
   `;
   container.appendChild(row);
-  scrollToBottom();
+  scrollToEnd();
 }
 
-function appendThinking() {
-  const container = document.getElementById('chat-messages');
+function appendThinkingState() {
+  const container = document.getElementById('stream-messages-container');
   const id = 'thinking-' + Date.now();
   const row = document.createElement('div');
   row.id = id;
-  row.className = 'message-row assistant';
+  row.className = 'chat-msg-row';
   row.innerHTML = `
-    <div class="message-content">
-      <div class="avatar bot"><i class="fa-solid fa-brain"></i></div>
-      <div class="message-body thinking-pulse">
-        <p><i class="fa-solid fa-magnifying-glass"></i> Querying Hindsight memory bank & running multi-strategy rerank...</p>
+    <div class="chat-msg-inner">
+      <div class="msg-avatar-gemini">
+        <svg viewBox="0 0 24 24" fill="none" style="width:22px;height:22px">
+          <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4L12 0Z" fill="url(#think_grad)"/>
+          <defs>
+            <linearGradient id="think_grad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#4285F4"/>
+              <stop offset="1" stop-color="#10B981"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="msg-text-content" style="color:var(--text-muted);font-style:italic">
+        <i class="fa-solid fa-spinner fa-spin"></i> Querying Hindsight memory bank & ranking multi-stakeholder facts...
       </div>
     </div>
   `;
   container.appendChild(row);
-  scrollToBottom();
+  scrollToEnd();
   return id;
 }
 
-function removeThinking(id) {
+function removeThinkingState(id) {
   const el = document.getElementById(id);
   if (el) el.remove();
 }
 
-function appendAssistantMessage(data) {
-  const container = document.getElementById('chat-messages');
+function appendAssistantResponse(data) {
+  const container = document.getElementById('stream-messages-container');
   const row = document.createElement('div');
-  row.className = 'message-row assistant';
+  row.className = 'chat-msg-row';
 
-  let memoryCitationsHtml = '';
+  let citationsHtml = '';
   if (data.recalled_memories && data.recalled_memories.length > 0) {
-    memoryCitationsHtml = `
-      <div class="memory-recall-panel">
-        <div class="recall-panel-header">
-          <i class="fa-solid fa-circle-check"></i> Grounded by ${data.recalled_memories.length} Hindsight Memory Units
+    citationsHtml = `
+      <div class="hindsight-proof-box">
+        <div class="proof-box-header">
+          <i class="fa-solid fa-circle-check"></i> Grounded by ${data.recalled_memories.length} Hindsight Episodic Memory Units
         </div>
-        <div class="memory-chip-list">
-          ${data.recalled_memories.map(m => `
-            <div class="memory-chip">
-              <div class="memory-chip-meta">
-                <span class="memory-chip-id">[${m.id}] ${m.category}</span>
-                <span>${m.stakeholder} • ${new Date(m.timestamp).toLocaleDateString()}</span>
-              </div>
-              <div class="memory-chip-content">"${escapeHtml(m.content)}"</div>
+        ${data.recalled_memories.map(m => `
+          <div class="proof-item">
+            <div class="proof-meta">
+              <strong style="color:#93c5fd;font-family:var(--font-mono)">[${m.id}] ${m.category}</strong>
+              <span>${m.stakeholder} • ${new Date(m.timestamp).toLocaleDateString()}</span>
             </div>
-          `).join('')}
-        </div>
+            <div style="color:#D1D5DB">"${escapeHtml(m.content)}"</div>
+          </div>
+        `).join('')}
       </div>
     `;
   } else if (!useMemory) {
-    memoryCitationsHtml = `
-      <div class="stateless-warning-box">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        <span><strong>Stateless Execution:</strong> Memory disabled. Response generated without historical context or stakeholder constraints.</span>
+    citationsHtml = `
+      <div style="margin-top:14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px 14px;font-size:0.8rem;color:#f87171">
+        <i class="fa-solid fa-triangle-exclamation"></i> <strong>Stateless Execution:</strong> Memory disabled. Response generated without historical context or stakeholder constraints.
       </div>
     `;
   }
 
-  const formattedReply = marked.parse(data.reply);
-
   row.innerHTML = `
-    <div class="message-content">
-      <div class="avatar bot"><i class="fa-solid fa-brain"></i></div>
-      <div class="message-body">
-        ${formattedReply}
-        ${memoryCitationsHtml}
+    <div class="chat-msg-inner">
+      <div class="msg-avatar-gemini">
+        <svg viewBox="0 0 24 24" fill="none" style="width:24px;height:24px">
+          <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4L12 0Z" fill="url(#gemini_grad)"/>
+        </svg>
+      </div>
+      <div class="msg-text-content">
+        ${marked.parse(data.reply || '')}
+        ${citationsHtml}
       </div>
     </div>
   `;
   container.appendChild(row);
-  scrollToBottom();
+  scrollToEnd();
 }
 
-function appendErrorMessage(msg) {
-  const container = document.getElementById('chat-messages');
-  const row = document.createElement('div');
-  row.className = 'message-row assistant';
-  row.innerHTML = `
-    <div class="message-content">
-      <div class="avatar bot" style="background:#EF4444;color:white"><i class="fa-solid fa-circle-exclamation"></i></div>
-      <div class="message-body" style="color:#EF4444">
-        <p>${escapeHtml(msg)}</p>
-      </div>
-    </div>
-  `;
-  container.appendChild(row);
-  scrollToBottom();
-}
-
-function scrollToBottom() {
-  const container = document.getElementById('chat-messages');
+function scrollToEnd() {
+  const container = document.getElementById('stream-messages-container');
   container.scrollTop = container.scrollHeight;
 }
 
-/* RETAIN NOTE HANDLER */
-async function handleRetainNote(e) {
-  e.preventDefault();
-  const stakeholder = document.getElementById('rn-stakeholder').value.trim();
-  const category = document.getElementById('rn-category').value;
-  const content = document.getElementById('rn-content').value.trim();
-
-  try {
-    const res = await fetch('/api/memories/retain', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        deal_id: activeDealId,
-        stakeholder: stakeholder,
-        category: category,
-        content: content
-      })
-    });
-    const result = await res.json();
-    alert('Note retained to Hindsight Cloud! Memory ID: ' + result.memory.id);
-    document.getElementById('rn-content').value = '';
-    // Switch to copilot and refresh
-    switchTab('copilot');
-  } catch (err) {
-    alert('Failed to retain note: ' + err.message);
-  }
-}
-
-/* MEMORY BANK LOADER */
-async function loadMemoryBank() {
-  const container = document.getElementById('memory-bank-list');
-  container.innerHTML = '<p style="color:var(--text-muted)">Loading memories from Hindsight...</p>';
-  try {
-    const res = await fetch('/api/memories');
-    const data = await res.json();
-    const dealMems = (data.memories || []).filter(m => !activeDealId || m.deal_id === activeDealId);
-    
-    if (dealMems.length === 0) {
-      container.innerHTML = '<p style="color:var(--text-muted)">No memories recorded for this deal yet.</p>';
-      return;
-    }
-
-    container.innerHTML = dealMems.map(m => `
-      <div class="card-box" style="margin-bottom:0;padding:16px;border-left:3px solid var(--accent)">
-        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-          <span style="font-family:var(--font-mono);color:var(--accent);font-size:0.78rem;font-weight:600">[${m.id}] ${m.category}</span>
-          <span style="font-size:0.75rem;color:var(--text-muted)">${m.stakeholder} • ${new Date(m.timestamp).toLocaleDateString()}</span>
-        </div>
-        <p style="font-size:0.86rem;color:#ECECF1;margin-bottom:8px">"${escapeHtml(m.content)}"</p>
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:0.7rem;color:var(--text-muted)">Entities: ${(m.entities || []).join(', ')}</span>
-          <button style="color:var(--danger);font-size:0.75rem;cursor:pointer;background:none;border:none" onclick="deleteMemory('${m.id}')">
-            <i class="fa-solid fa-trash"></i> Delete
-          </button>
-        </div>
-      </div>
-    `).join('');
-  } catch (err) {
-    container.innerHTML = '<p style="color:var(--danger)">Error loading memories.</p>';
-  }
-}
-
-async function deleteMemory(id) {
-  if (!confirm('Permanently delete memory ' + id + ' from Hindsight?')) return;
-  await fetch(`/api/memories/${id}`, { method: 'DELETE' });
-  loadMemoryBank();
-}
-
-/* REFLECT ENGINE */
-async function runReflection() {
-  const out = document.getElementById('reflection-output');
-  out.style.display = 'block';
-  out.innerHTML = '<p style="color:var(--text-muted)"><i class="fa-solid fa-spinner fa-spin"></i> Synthesizing cross-deal cognitive reflection across Hindsight memory bank...</p>';
-
-  try {
-    const res = await fetch('/api/reflect');
-    const data = await res.json();
-    out.innerHTML = `
-      <div style="font-family:var(--font-head);font-size:1.05rem;font-weight:700;margin-bottom:12px;color:var(--green)">
-        <i class="fa-solid fa-chart-pie"></i> Executive Reflection Report
-      </div>
-      <div style="font-size:0.88rem;line-height:1.6;color:#ECECF1">
-        ${marked.parse(data.reflection || data.summary || "All deals show high alignment with compliance-first deployments and aggressive vendor replacement plays.")}
-      </div>
-    `;
-  } catch (err) {
-    out.innerHTML = '<p style="color:var(--danger)">Reflection failed: ' + err.message + '</p>';
-  }
-}
-
 /* MODALS */
-function openSettingsModal() { document.getElementById('settings-modal').classList.add('open'); }
-function closeSettingsModal() { document.getElementById('settings-modal').classList.remove('open'); }
-function openNewDealModal() { document.getElementById('new-deal-modal').classList.add('open'); }
-function closeNewDealModal() { document.getElementById('new-deal-modal').classList.remove('open'); }
+function openRetainModal() { document.getElementById('retain-modal').classList.add('open'); }
+function closeRetainModal() { document.getElementById('retain-modal').classList.remove('open'); }
+function openSettings() { document.getElementById('settings-modal').classList.add('open'); }
+function closeSettings() { document.getElementById('settings-modal').classList.remove('open'); }
 
-async function saveSettings(e) {
+async function handleRetainSubmit(e) {
+  e.preventDefault();
+  const res = await fetch('/api/memories/retain', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      deal_id: activeDealId,
+      stakeholder: document.getElementById('rm-stakeholder').value.trim(),
+      category: document.getElementById('rm-category').value,
+      content: document.getElementById('rm-content').value.trim()
+    })
+  });
+  const data = await res.json();
+  closeRetainModal();
+  alert('Memory retained to Hindsight Cloud! ID: ' + data.memory.id);
+  document.getElementById('rm-content').value = '';
+}
+
+async function handleSaveSettings(e) {
   e.preventDefault();
   await fetch('/api/config', {
     method: 'POST',
@@ -1280,30 +1038,25 @@ async function saveSettings(e) {
       base_url: document.getElementById('cfg-url').value.trim()
     })
   });
-  closeSettingsModal();
-  alert('Hindsight Cloud connection updated successfully.');
+  closeSettings();
+  alert('Hindsight settings updated.');
 }
 
-async function handleCreateDeal(e) {
-  e.preventDefault();
-  const res = await fetch('/api/deals', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      name: document.getElementById('nd-name').value.trim(),
-      arr: parseFloat(document.getElementById('nd-arr').value),
-      stakeholders: document.getElementById('nd-stakeholders').value.split(',').map(s => s.trim()),
-      stage: document.getElementById('nd-stage').value
-    })
-  });
+async function openReflectReport() {
+  switchToChatStream();
+  appendUserMessage("Synthesize cross-deal cognitive patterns across all enterprise deals");
+  const thinkingId = appendThinkingState();
+  const res = await fetch('/api/reflect');
   const data = await res.json();
-  closeNewDealModal();
-  await fetchDeals();
-  selectDeal(data.deal.id);
+  removeThinkingState(thinkingId);
+  appendAssistantResponse({
+    reply: data.reflection || data.summary,
+    recalled_memories: []
+  });
 }
 
-function escapeHtml(str) {
-  return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function escapeHtml(s) {
+  return (s || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 window.onload = init;
